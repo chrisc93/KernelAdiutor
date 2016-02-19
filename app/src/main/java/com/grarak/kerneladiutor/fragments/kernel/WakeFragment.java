@@ -17,6 +17,7 @@
 package com.grarak.kerneladiutor.fragments.kernel;
 
 import android.os.Bundle;
+import android.view.ViewDebug;
 
 import com.grarak.kerneladiutor.R;
 import com.grarak.kerneladiutor.elements.cards.PopupCardView;
@@ -46,13 +47,14 @@ public class WakeFragment extends RecyclerViewFragment implements PopupCardView.
     private SwitchCardView.DSwitchCard mCameraGestureCard;
     private SwitchCardView.DSwitchCard mPocketModeCard;
 
-    private SeekBarCardView.DSeekBarCard mWakeTimeoutCard;
+    private SeekBarCardView.DSeekBarCard mWakeTimeoutCard, mWakeGesturesVibStrengthCard;
     private SwitchCardView.DSwitchCard mPowerKeySuspendCard;
 
     @Override
     public void init(Bundle savedInstanceState) {
         super.init(savedInstanceState);
 
+        if (Wake.hasVibStrength()) vibstrengthInit();
         if (Wake.hasDt2w()) dt2wInit();
         if (Wake.hasS2w()) s2wInit();
         if (Wake.hasLenient()) lenientInit();
@@ -65,6 +67,20 @@ public class WakeFragment extends RecyclerViewFragment implements PopupCardView.
         if (Wake.hasPocketMode()) pocketModeInit();
         if (Wake.hasWakeTimeout()) wakeTimeoutInit();
         if (Wake.hasPowerKeySuspend()) powerKeySuspendInit();
+    }
+
+    private void vibstrengthInit() {
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < 91; i++)
+            list.add(Integer.toString(i));
+
+        mWakeGesturesVibStrengthCard = new SeekBarCardView.DSeekBarCard(list);
+        mWakeGesturesVibStrengthCard.setTitle(getString(R.string.vib_strength));
+        mWakeGesturesVibStrengthCard.setDescription(getString(R.string.vib_strength_summary));
+        mWakeGesturesVibStrengthCard.setProgress(Wake.getvibstrength());
+        mWakeGesturesVibStrengthCard.setOnDSeekBarCardListener(this);
+
+        addView(mWakeGesturesVibStrengthCard);
     }
 
     private void dt2wInit() {
@@ -209,7 +225,8 @@ public class WakeFragment extends RecyclerViewFragment implements PopupCardView.
 
     @Override
     public void onStop(SeekBarCardView.DSeekBarCard dSeekBarCard, int position) {
-        if (dSeekBarCard == mWakeTimeoutCard) Wake.setWakeTimeout(position, getActivity());
+        if (dSeekBarCard == mWakeGesturesVibStrengthCard) Wake.setvibstrength(position, getActivity());
+        else if (dSeekBarCard == mWakeTimeoutCard) Wake.setWakeTimeout(position, getActivity());
     }
 
     @Override

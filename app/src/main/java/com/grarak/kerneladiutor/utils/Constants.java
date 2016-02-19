@@ -581,6 +581,8 @@ public interface Constants {
     String[][] WAKE_ARRAY = {DT2W_ARRAY, S2W_ARRY, T2W_ARRAY, WAKE_MISC_ARRAY, SLEEP_MISC_ARRAY, WAKE_TIMEOUT_ARRAY,
             POCKET_MODE_ARRAY, {LENIENT, GESTURE_CRTL, CAMERA_GESTURE, POWER_KEY_SUSPEND}};
 
+    String WAKE_VIB_STRENGTH = "/sys/android_touch/vib_strength";
+
     // Sound
     String SOUND_CONTROL_ENABLE = "/sys/module/snd_soc_wcd9320/parameters/enable_fs";
     String HIGHPERF_MODE_ENABLE = "/sys/devices/virtual/misc/soundcontrol/highperf_enabled";
