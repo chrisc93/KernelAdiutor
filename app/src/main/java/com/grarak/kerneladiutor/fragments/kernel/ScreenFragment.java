@@ -63,6 +63,7 @@ public class ScreenFragment extends RecyclerViewFragment implements SeekBarCardV
     private SeekBarCardView.DSeekBarCard mScreenValueCard;
     private SeekBarCardView.DSeekBarCard mScreenContrastCard;
     private SwitchCardView.DSwitchCard mScreenHBMCard;
+    private SwitchCardView.DSwitchCard mScreenColorTempEnableCard;
 
     private EditTextCardView.DEditTextCard mKGammaBlueCard;
     private EditTextCardView.DEditTextCard mKGammaGreenCard;
@@ -133,6 +134,7 @@ public class ScreenFragment extends RecyclerViewFragment implements SeekBarCardV
         if (Screen.hasDsiPanel()) dsipanelInit();
         if (mKGammaProfilesCard != null || mGammaControlProfilesCard != null || mDsiPanelProfilesCard != null)
             additionalProfilesInit();
+        fb0ColorTempInit();
         lcdBackLightInit();
         backlightDimmerInit();
         mdssBacklightDimmerInit();
@@ -540,6 +542,19 @@ public class ScreenFragment extends RecyclerViewFragment implements SeekBarCardV
         }
     }
 
+    private void fb0ColorTempInit() {
+        if (Screen.hasFb0ColorTempEnable())
+            mScreenColorTempEnableCard = new SwitchCardView.DSwitchCard();
+
+        mScreenColorTempEnableCard.setTitle(getString(R.string.color_temp));
+        mScreenColorTempEnableCard.setDescription(getString(R.string.color_temp_summary));
+
+        mScreenColorTempEnableCard.setChecked(Screen.isFb0ColorTempActive());
+        mScreenColorTempEnableCard.setOnDSwitchCardListener(this);
+        addView(mScreenColorTempEnableCard);
+
+    }
+
     private void additionalProfilesInit() {
         mAdditionalProfilesCard = new CardViewItem.DCardView();
         mAdditionalProfilesCard.setTitle(getString(R.string.additional_profiles));
@@ -797,6 +812,8 @@ public class ScreenFragment extends RecyclerViewFragment implements SeekBarCardV
             if (!checked) mSaturationIntensityCard.setProgress(30);
         } else if (dSwitchCard == mScreenHBMCard)
             Screen.activateScreenHBM(checked, getActivity());
+        else if (dSwitchCard == mScreenColorTempEnableCard)
+            Screen.activateFb0ColorTemp(checked, getActivity());
         else if (dSwitchCard == mBackLightDimmerEnableCard)
             Screen.activateBackLightDimmer(checked, getActivity());
         else if (dSwitchCard == mMdssBackLightDimmerEnableCard)

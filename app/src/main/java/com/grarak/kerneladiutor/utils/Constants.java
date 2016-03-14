@@ -434,6 +434,8 @@ public interface Constants {
 
     String SCREEN_HBM = "/sys/devices/virtual/graphics/fb0/hbm";
 
+    String SCREEN_FB0_COLOR_TEMP = "/sys/class/graphics/fb0/color_temp";
+
     // Gamma
     String K_GAMMA_R = "/sys/devices/platform/mipi_lgit.1537/kgamma_r";
     String K_GAMMA_G = "/sys/devices/platform/mipi_lgit.1537/kgamma_g";

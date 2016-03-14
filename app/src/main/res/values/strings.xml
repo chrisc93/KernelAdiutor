@@ -395,6 +395,8 @@
     <string name="max_brightness">Maximum Brightness</string>
     <string name="max_brightness_summary">Allows you to increase the LCD screen brightness higher than it\'s possible on stock.</string>
     <string name="backlight_dimmer">Backlight Dimmer</string>
+    <string name="color_temp">Google Bluish Color Fix</string>
+    <string name="color_temp_summary">Google introduced this fix in the android-6.0.1-mr22 tag for the Nexus 5X.</string>
     <string name="offset">Offset</string>
     <string name="negative_toggle">Negative Toggle</string>
     <string name="negative_toggle_summary">Enable inverting the screen colors by quickly pressing MENU button 4 times.</string>

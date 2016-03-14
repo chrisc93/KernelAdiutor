@@ -86,6 +86,18 @@ public class Screen implements Constants {
         return Utils.existFile(NEGATIVE_TOGGLE);
     }
 
+    public static void activateFb0ColorTemp(boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", SCREEN_FB0_COLOR_TEMP, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isFb0ColorTempActive() {
+        return Utils.readFile(SCREEN_FB0_COLOR_TEMP).equals("1");
+    }
+
+    public static boolean hasFb0ColorTempEnable() {
+        return Utils.existFile(SCREEN_FB0_COLOR_TEMP);
+    }
+
     public static void setBackLightDimmerOffset(int value, Context context) {
         Control.runCommand(String.valueOf(value), LM3630_BACKLIGHT_DIMMER_OFFSET, Control.CommandType.GENERIC, context);
     }
