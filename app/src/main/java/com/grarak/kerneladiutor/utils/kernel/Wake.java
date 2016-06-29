@@ -41,15 +41,28 @@ public class Wake implements Constants {
     private static String POCKET_MODE_FILE;
 
     public static void activatePowerKeySuspend(boolean active, Context context) {
-        Control.runCommand(active ? "1" : "0", POWER_KEY_SUSPEND, Control.CommandType.GENERIC, context);
+        Control.runCommand(active ? "1" : "0", Utils.getsysfspath(POWER_KEY_SUSPEND), Control.CommandType.GENERIC, context);
     }
 
     public static boolean isPowerKeySuspendActive() {
-        return Utils.readFile(POWER_KEY_SUSPEND).equals("1");
+        return Utils.readFile(Utils.getsysfspath(POWER_KEY_SUSPEND)).equals("1");
     }
 
     public static boolean hasPowerKeySuspend() {
-        return Utils.existFile(POWER_KEY_SUSPEND);
+        return Utils.existFile(Utils.getsysfspath(POWER_KEY_SUSPEND));
+    }
+
+    public static boolean hasVibStrength() {
+        if (Utils.existFile(WAKE_VIB_STRENGTH)) return true;
+        return false;
+    }
+
+    public static void setvibstrength(int value, Context context) {
+        Control.runCommand(String.valueOf(value), WAKE_VIB_STRENGTH, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getvibstrength() {
+        return Utils.stringToInt(Utils.readFile(WAKE_VIB_STRENGTH));
     }
 
     public static boolean hasVibStrength() {
@@ -78,6 +91,58 @@ public class Wake implements Constants {
         return 10;
     }
 
+    public static boolean hasS2WTime() {
+        if (Utils.existFile(WAKE_ST2W_TIME)) return true;
+        return false;
+    }
+
+    public static void setS2WTime(int value, Context context) {
+        Control.runCommand(String.valueOf(value), WAKE_ST2W_TIME, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getS2WTime() {
+        return Utils.stringToInt(Utils.readFile(WAKE_ST2W_TIME));
+    }
+
+    public static boolean hasDT2WTimeBetweenTaps() {
+        if (Utils.existFile(WAKE_DT2W_TIMEBETWEENTAPS)) return true;
+        return false;
+    }
+
+    public static void setDT2WTimeBetweenTaps(int value, Context context) {
+        Control.runCommand(String.valueOf(value), WAKE_DT2W_TIMEBETWEENTAPS, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getDT2WTimeBetweenTaps() {
+        return Utils.stringToInt(Utils.readFile(WAKE_DT2W_TIMEBETWEENTAPS));
+    }
+
+    public static int getDT2WFeatherX() {
+        return Utils.stringToInt(Utils.readFile(WAKE_DT2W_FEATHERX));
+    }
+
+    public static boolean hasDT2WFeatherX() {
+        if (Utils.existFile(WAKE_DT2W_FEATHERX)) return true;
+        return false;
+    }
+
+    public static void setDT2WFeatherX(int value, Context context) {
+        Control.runCommand(String.valueOf(value), WAKE_DT2W_FEATHERX, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getDT2WFeatherY() {
+        return Utils.stringToInt(Utils.readFile(WAKE_DT2W_FEATHERY));
+    }
+
+    public static boolean hasDT2WFeatherY() {
+        if (Utils.existFile(WAKE_DT2W_FEATHERY)) return true;
+        return false;
+    }
+
+    public static void setDT2WFeatherY(int value, Context context) {
+        Control.runCommand(String.valueOf(value), WAKE_DT2W_FEATHERY, Control.CommandType.GENERIC, context);
+    }
+
     public static boolean hasWakeTimeout() {
         for (String file : WAKE_TIMEOUT_ARRAY)
             if (Utils.existFile(file)) {
@@ -104,26 +169,50 @@ public class Wake implements Constants {
         return false;
     }
 
+    public static void activateTW(boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", TW, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isTWActive() {
+        return Utils.readFile(TW).equals("1");
+    }
+
+    public static boolean hasTW() {
+        return Utils.existFile(TW);
+    }
+
+    public static void activateMW(boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", MW, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isMWActive() {
+        return Utils.readFile(TW).equals("1");
+    }
+
+    public static boolean hasMW() {
+        return Utils.existFile(MW);
+    }
+
     public static void activateCameraGesture(boolean active, Context context) {
-        Control.runCommand(active ? "1" : "0", CAMERA_GESTURE, Control.CommandType.GENERIC, context);
+        Control.runCommand(active ? "1" : "0", Utils.getsysfspath(CAMERA_GESTURE), Control.CommandType.GENERIC, context);
     }
 
     public static boolean isCameraGestureActive() {
-        return Utils.readFile(CAMERA_GESTURE).equals("1");
+        return Utils.readFile(Utils.getsysfspath(CAMERA_GESTURE)).equals("1");
     }
 
     public static boolean hasCameraGesture() {
-        return Utils.existFile(CAMERA_GESTURE);
+        return Utils.existFile(Utils.getsysfspath(CAMERA_GESTURE));
     }
 
     public static void activateGesture(boolean active, int gesture, Context context) {
-        Control.runCommand(GESTURE_STRING_VALUES[gesture] + "=" + active, GESTURE_CRTL, Control.CommandType.GENERIC,
+        Control.runCommand(GESTURE_STRING_VALUES[gesture] + "=" + active, Utils.getsysfspath(GESTURE_CRTL), Control.CommandType.GENERIC,
                 GESTURE_STRING_VALUES[gesture], context);
     }
 
     public static boolean isGestureActive(int gesture) {
         try {
-            return (Long.decode(Utils.readFile(GESTURE_CRTL)) & GESTURE_HEX_VALUES[gesture]) > 0;
+            return (Long.decode(Utils.readFile(Utils.getsysfspath(GESTURE_CRTL))) & GESTURE_HEX_VALUES[gesture]) > 0;
         } catch (NumberFormatException e) {
             e.printStackTrace();
             return false;
@@ -146,7 +235,7 @@ public class Wake implements Constants {
     }
 
     public static boolean hasGesture() {
-        return Utils.existFile(GESTURE_CRTL);
+        return Utils.existFile(Utils.getsysfspath(GESTURE_CRTL));
     }
 
     public static void setDt2s(int value, Context context) {
@@ -190,7 +279,9 @@ public class Wake implements Constants {
             list.add(context.getString(R.string.disabled));
             switch (SLEEP_MISC_FILE) {
                 case S2S:
-                    list.add(context.getString(R.string.s2s));
+                    list.add(context.getString(R.string.s2s_right));
+                    list.add(context.getString(R.string.s2s_left));
+                    list.add(context.getString(R.string.s2s_any));
                     break;
                 case SCREEN_SLEEP_OPTIONS:
                     list.add(context.getString(R.string.dt2s));
@@ -289,7 +380,9 @@ public class Wake implements Constants {
     }
 
     public static int getS2wValue() {
-        return Utils.stringToInt(Utils.readFile(S2W_FILE));
+        int val = Utils.stringToInt(Utils.readFile(S2W_FILE));
+        if (val == 0 ) return 0;
+        return val;
     }
 
     public static List<String> getS2wMenu(Context context) {
@@ -298,8 +391,21 @@ public class Wake implements Constants {
         if (S2W_FILE != null) {
             switch (S2W_FILE) {
                 case SW2:
-                    list.add(context.getString(R.string.s2w) + " + " + context.getString(R.string.s2s));
-                    list.add(context.getString(R.string.s2s));
+                    list.add(context.getString(R.string.right));
+                    list.add(context.getString(R.string.left));
+                    list.add(context.getString(R.string.right) + " or " + context.getString(R.string.left));
+                    list.add(context.getString(R.string.up));
+                    list.add(context.getString(R.string.right) + " or " + context.getString(R.string.up));
+                    list.add(context.getString(R.string.left) + " or " + context.getString(R.string.up));
+                    list.add(context.getString(R.string.right) + " or " + context.getString(R.string.left) + " or " + context.getString(R.string.up));
+                    list.add(context.getString(R.string.down));
+                    list.add(context.getString(R.string.right) + " or " + context.getString(R.string.down));
+                    list.add(context.getString(R.string.left) + " or " + context.getString(R.string.down));
+                    list.add(context.getString(R.string.right) + " or " + context.getString(R.string.left) + " or " + context.getString(R.string.down));
+                    list.add(context.getString(R.string.up) + " or " + context.getString(R.string.down));
+                    list.add(context.getString(R.string.right) + " or " + context.getString(R.string.up) + " or " + context.getString(R.string.down));
+                    list.add(context.getString(R.string.left) + " or " + context.getString(R.string.up) + " or " + context.getString(R.string.down));
+                    list.add(context.getString(R.string.right) + " or " + context.getString(R.string.left) + " or " + context.getString(R.string.up) + " or " + context.getString(R.string.down));
                     break;
                 case SW2_2:
                     list.add(context.getString(R.string.s2w_right));

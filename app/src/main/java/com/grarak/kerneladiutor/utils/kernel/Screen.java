@@ -17,7 +17,10 @@
 package com.grarak.kerneladiutor.utils.kernel;
 
 import android.content.Context;
+import android.content.Intent;
 
+import com.grarak.kerneladiutor.services.AutoHighBrightnessModeService;
+import com.grarak.kerneladiutor.services.HBMWidget;
 import com.grarak.kerneladiutor.utils.Constants;
 import com.grarak.kerneladiutor.utils.Utils;
 import com.grarak.kerneladiutor.utils.json.GammaProfiles;
@@ -31,12 +34,9 @@ import java.util.List;
  */
 public class Screen implements Constants {
 
-    private static String SCREEN_CALIBRATION;
-    private static String SCREEN_CALIBRATION_CTRL;
+    private static String SCREEN_CALIBRATION, SCREEN_CALIBRATION_CTRL, MIN_BRIGHTNESS;
 
     private static GammaProfiles GAMMA_PROFILES;
-
-    private static String MIN_BRIGHTNESS;
 
     public static void activateGloveMode(boolean active, Context context) {
         Control.runCommand(active ? "glove" : "normal", GLOVE_MODE, Control.CommandType.GENERIC, context);
@@ -133,6 +133,8 @@ public class Screen implements Constants {
                     return 50;
                 case MSM_BACKLIGHT_DIMMER:
                     return 100;
+                case ZE551ML_MIN_BRIGHTNESS:
+                    return 13;
             }
         }
         return 0;
@@ -251,8 +253,13 @@ public class Screen implements Constants {
     }
 
     public static GammaProfiles.DsiPanelProfiles getDsiPanelProfiles(Context context) {
-        if (GAMMA_PROFILES == null)
-            GAMMA_PROFILES = new GammaProfiles(Utils.readAssetFile(context, "gamma_profiles.json"));
+        if (GAMMA_PROFILES == null) {
+            if (Utils.existFile(context.getFilesDir() + "/gamma_profiles.json")) {
+                GAMMA_PROFILES = new GammaProfiles(Utils.readFile(context.getFilesDir() + "/gamma_profiles.json"));
+            } else {
+                GAMMA_PROFILES = new GammaProfiles(Utils.readAssetFile(context, "gamma_profiles.json"));
+            }
+        }
         return GAMMA_PROFILES.getDsiPanelProfiles();
     }
 
@@ -370,8 +377,13 @@ public class Screen implements Constants {
     }
 
     public static GammaProfiles.GammaControlProfiles getGammaControlProfiles(Context context) {
-        if (GAMMA_PROFILES == null)
-            GAMMA_PROFILES = new GammaProfiles(Utils.readAssetFile(context, "gamma_profiles.json"));
+        if (GAMMA_PROFILES == null) {
+            if (Utils.existFile(context.getFilesDir() + "/gamma_profiles.json")) {
+                GAMMA_PROFILES = new GammaProfiles(Utils.readFile(context.getFilesDir() + "/gamma_profiles.json"));
+            } else {
+                GAMMA_PROFILES = new GammaProfiles(Utils.readAssetFile(context, "gamma_profiles.json"));
+            }
+        }
         return GAMMA_PROFILES.getGammaControl();
     }
 
@@ -436,8 +448,7 @@ public class Screen implements Constants {
     }
 
     public static boolean hasGammaControl() {
-        for (String file : GAMMACONTROL_ARRAY) if (Utils.existFile(file)) return true;
-        return false;
+        return Utils.existFile(GAMMACONTROL);
     }
 
     public static void setKGammaProfile(int profile, GammaProfiles.KGammaProfiles kGammaProfiles, Context context) {
@@ -470,8 +481,13 @@ public class Screen implements Constants {
     }
 
     public static GammaProfiles.KGammaProfiles getKGammaProfiles(Context context) {
-        if (GAMMA_PROFILES == null)
-            GAMMA_PROFILES = new GammaProfiles(Utils.readAssetFile(context, "gamma_profiles.json"));
+        if (GAMMA_PROFILES == null) {
+            if (Utils.existFile(context.getFilesDir() + "/gamma_profiles.json")) {
+                GAMMA_PROFILES = new GammaProfiles(Utils.readFile(context.getFilesDir() + "/gamma_profiles.json"));
+            } else {
+                GAMMA_PROFILES = new GammaProfiles(Utils.readAssetFile(context, "gamma_profiles.json"));
+            }
+        }
         return GAMMA_PROFILES.getKGamma();
     }
 
@@ -495,16 +511,76 @@ public class Screen implements Constants {
         return false;
     }
 
-    public static void activateScreenHBM(boolean active, Context context) {
-        Control.runCommand(active ? "1" : "0", SCREEN_HBM, Control.CommandType.GENERIC, context);
+    public static void activateScreenHBM(boolean active, Context context, String source) {
+        if (source.equals("Manual")) {
+            if (Screen.isScreenAutoHBMActive(context) && AutoHighBrightnessModeService.HBM_Manually_Toggled) {
+                AutoHighBrightnessModeService.HBM_Manually_Toggled = false;
+            } else {
+                AutoHighBrightnessModeService.HBM_Manually_Toggled = true;
+            }
+        }
+        Control.runCommand(active ? "1" : "0", Utils.getsysfspath(SCREEN_HBM), Control.CommandType.GENERIC, context);
+        if (Utils.getBoolean("Widget_Active", false, context)) {
+            HBMWidget.doupdate(context, active);
+        }
     }
 
     public static boolean isScreenHBMActive() {
-        return Utils.readFile(SCREEN_HBM).equals("1");
+        return Utils.readFile(Utils.getsysfspath(SCREEN_HBM)).equals("1");
     }
 
     public static boolean hasScreenHBM() {
-        return Utils.existFile(SCREEN_HBM);
+        return Utils.existFile(Utils.getsysfspath(SCREEN_HBM));
+    }
+
+    public static boolean isScreenAutoHBMActive(Context context) {
+        return Utils.getBoolean("AutoHBM", false, context);
+    }
+
+    public static void activateScreenAutoHBM(boolean active, Context context) {
+        Utils.saveBoolean("AutoHBM", active, context);
+        Intent intent = new Intent(context, AutoHighBrightnessModeService.class);
+        if (active) {
+            context.startService(intent);
+        }
+        else {
+            context.stopService(intent);
+        }
+    }
+
+    public static boolean isScreenHBMLockActive(Context context) {
+        return Utils.getBoolean("HBM_Lock", false, context);
+    }
+
+    public static void activateScreenHBMLock(boolean active, Context context) {
+        Utils.saveBoolean("HBM_Lock", active, context);
+    }
+
+    public static boolean isScreenAutoHBMSmoothingActive(Context context) {
+        return Utils.getBoolean("AutoHBM_Smoothing", false, context);
+    }
+
+    public static void activateScreenHBMSmoothing(boolean active, Context context) {
+        Utils.saveBoolean("AutoHBM_Smoothing", active, context);
+    }
+
+    public static int getAutoHBMSmoothingSamples(Context context) {
+        return Utils.getInt("AutoHBM_Samples", 3, context);
+    }
+
+    public static void setAutoHBMSmoothingSamples(int value, Context context) {
+        Utils.saveInt("AutoHBM_Samples", value, context);
+        //Reinitialize the array with the new size
+        AutoHighBrightnessModeService.luxvalues = new float[value];
+    }
+
+    public static int getAutoHBMThresh(Context context) {
+        return Utils.getInt("AutoHBM_Threshold", 1500, context);
+    }
+
+    public static void setAutoHBMThresh(int value, Context context) {
+        Utils.saveInt("AutoHBM_Threshold", value, context);
+        AutoHighBrightnessModeService.LuxThresh = value;
     }
 
     public static void setScreenContrast(int value, Context context) {
@@ -692,6 +768,57 @@ public class Screen implements Constants {
         for (String[] array : SCREEN_ARRAY)
             for (String file : array) if (Utils.existFile(file)) return true;
         return false;
+    }
+
+    public static GammaProfiles.ScreenColorProfiles getScreenColorProfiles (Context context) {
+        if (GAMMA_PROFILES == null) {
+            if (Utils.existFile(context.getFilesDir() + "/gamma_profiles.json")) {
+                GAMMA_PROFILES = new GammaProfiles(Utils.readFile(context.getFilesDir() + "/gamma_profiles.json"));
+            } else {
+                GAMMA_PROFILES = new GammaProfiles(Utils.readAssetFile(context, "gamma_profiles.json"));
+            }
+        }
+        return GAMMA_PROFILES.getScreenColorProfiles();
+    }
+
+    public static String getCurrentColorProfile (Context context) {
+        getScreenColorProfiles(context);
+        String current = Utils.readFile(SCREEN_KCAL_CTRL) + "," + Utils.readFile(SCREEN_KCAL_CTRL_SAT) + "," + Utils.readFile(SCREEN_KCAL_CTRL_VAL) + "," + Utils.readFile(SCREEN_KCAL_CTRL_CONT) + "," + Utils.readFile(SCREEN_KCAL_CTRL_HUE);
+        GammaProfiles.ScreenColorProfiles screenColorProfiles = Screen.getScreenColorProfiles(context);
+        for (int i = 0 ;i < screenColorProfiles.length(); i++) {
+            if (current.equals(screenColorProfiles.getValues(i))) {
+                return screenColorProfiles.getName(i);
+            }
+        }
+        return "Custom";
+    }
+
+    public static void setScreenColorProfile (int profile, GammaProfiles.ScreenColorProfiles screenColorProfiles, Context context) {
+        if (screenColorProfiles == null) return;
+        setColorCalibrationKcal(screenColorProfiles.getRGB(profile), context);
+        setSaturationIntensityKcal(screenColorProfiles.getSat(profile), context);
+        setScreenValueKcal(screenColorProfiles.getValue(profile), context);
+        setScreenContrastKcal(screenColorProfiles.getContrast(profile), context);
+        setScreenHueKcal(screenColorProfiles.getHue(profile), context);
+        return;
+    }
+
+    public static void setColorCalibrationKcal(String value, Context context) {
+        Control.runCommand(value, SCREEN_KCAL_CTRL, Control.CommandType.GENERIC, context);
+    }
+    public static void setScreenValueKcal (String value, Context context) {
+        Control.runCommand(value, SCREEN_KCAL_CTRL_VAL, Control.CommandType.GENERIC, context);
+    }
+
+    public static void setScreenContrastKcal (String value, Context context) {
+        Control.runCommand(value, SCREEN_KCAL_CTRL_CONT, Control.CommandType.GENERIC, context);
+    }
+    public static void setSaturationIntensityKcal (String value, Context context) {
+        Control.runCommand(value, SCREEN_KCAL_CTRL_SAT, Control.CommandType.GENERIC, context);
+    }
+
+    public static void setScreenHueKcal (String value, Context context) {
+        Control.runCommand(value, SCREEN_KCAL_CTRL_HUE, Control.CommandType.GENERIC, context);
     }
 
 }

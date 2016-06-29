@@ -16,15 +16,21 @@
 
 package com.grarak.kerneladiutor;
 
-import android.app.Activity;
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.ActivityManager;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -43,6 +49,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.crashlytics.android.Crashlytics;
 import com.grarak.kerneladiutor.elements.DAdapter;
 import com.grarak.kerneladiutor.elements.ScrimInsetsFrameLayout;
 import com.grarak.kerneladiutor.elements.SplashView;
@@ -53,18 +60,19 @@ import com.grarak.kerneladiutor.fragments.kernel.BatteryFragment;
 import com.grarak.kerneladiutor.fragments.kernel.CPUFragment;
 import com.grarak.kerneladiutor.fragments.kernel.CPUHotplugFragment;
 import com.grarak.kerneladiutor.fragments.kernel.CPUVoltageFragment;
+import com.grarak.kerneladiutor.fragments.kernel.CoreControlFragment;
 import com.grarak.kerneladiutor.fragments.kernel.EntropyFragment;
 import com.grarak.kerneladiutor.fragments.kernel.GPUFragment;
 import com.grarak.kerneladiutor.fragments.kernel.IOFragment;
 import com.grarak.kerneladiutor.fragments.kernel.KSMFragment;
 import com.grarak.kerneladiutor.fragments.kernel.LMKFragment;
 import com.grarak.kerneladiutor.fragments.kernel.MiscFragment;
-import com.grarak.kerneladiutor.fragments.kernel.PluginsFragment;
 import com.grarak.kerneladiutor.fragments.kernel.ScreenFragment;
 import com.grarak.kerneladiutor.fragments.kernel.SoundFragment;
 import com.grarak.kerneladiutor.fragments.kernel.ThermalFragment;
 import com.grarak.kerneladiutor.fragments.kernel.VMFragment;
 import com.grarak.kerneladiutor.fragments.kernel.WakeFragment;
+import com.grarak.kerneladiutor.fragments.kernel.WakeLockFragment;
 import com.grarak.kerneladiutor.fragments.other.AboutusFragment;
 import com.grarak.kerneladiutor.fragments.other.FAQFragment;
 import com.grarak.kerneladiutor.fragments.other.SettingsFragment;
@@ -73,7 +81,9 @@ import com.grarak.kerneladiutor.fragments.tools.BuildpropFragment;
 import com.grarak.kerneladiutor.fragments.tools.InitdFragment;
 import com.grarak.kerneladiutor.fragments.tools.ProfileFragment;
 import com.grarak.kerneladiutor.fragments.tools.RecoveryFragment;
+import com.grarak.kerneladiutor.fragments.tools.StartUpCommandsFragment;
 import com.grarak.kerneladiutor.fragments.tools.download.DownloadsFragment;
+import com.grarak.kerneladiutor.services.AutoHighBrightnessModeService;
 import com.grarak.kerneladiutor.services.ProfileTileReceiver;
 import com.grarak.kerneladiutor.utils.Constants;
 import com.grarak.kerneladiutor.utils.Utils;
@@ -81,6 +91,7 @@ import com.grarak.kerneladiutor.utils.database.ProfileDB;
 import com.grarak.kerneladiutor.utils.json.Downloads;
 import com.grarak.kerneladiutor.utils.kernel.CPUHotplug;
 import com.grarak.kerneladiutor.utils.kernel.CPUVoltage;
+import com.grarak.kerneladiutor.utils.kernel.CoreControl;
 import com.grarak.kerneladiutor.utils.kernel.Entropy;
 import com.grarak.kerneladiutor.utils.kernel.GPU;
 import com.grarak.kerneladiutor.utils.kernel.KSM;
@@ -89,22 +100,22 @@ import com.grarak.kerneladiutor.utils.kernel.Screen;
 import com.grarak.kerneladiutor.utils.kernel.Sound;
 import com.grarak.kerneladiutor.utils.kernel.Thermal;
 import com.grarak.kerneladiutor.utils.kernel.Wake;
+import com.grarak.kerneladiutor.utils.kernel.WakeLock;
 import com.grarak.kerneladiutor.utils.tools.Backup;
 import com.grarak.kerneladiutor.utils.tools.Buildprop;
+import com.grarak.kerneladiutor.utils.tools.UpdateChecker;
 import com.kerneladiutor.library.root.RootUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.fabric.sdk.android.Fabric;
 
 /**
  * Created by willi on 01.12.14.
  */
 public class MainActivity extends BaseActivity implements Constants {
-
-    /**
-     * Cache the context of this activity
-     */
-    private static Context context;
 
     /**
      * Views
@@ -127,12 +138,13 @@ public class MainActivity extends BaseActivity implements Constants {
      */
     private int cur_position;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // If there is a previous activity running, kill it
-        if (context != null) ((Activity) context).finish();
-        context = this;
+        if(!BuildConfig.DEBUG){
+            Fabric.with(this, new Crashlytics());
+        }
 
         setView();
         String password;
@@ -140,6 +152,10 @@ public class MainActivity extends BaseActivity implements Constants {
             askPassword(password);
         else // Use an AsyncTask to initialize everything
             new Task().execute();
+
+        if (Utils.getBoolean("AutoHBM", false, getApplicationContext()) && Screen.hasScreenHBM() && !isMyServiceRunning(AutoHighBrightnessModeService.class)) {
+            startService(new Intent(this, AutoHighBrightnessModeService.class));
+        }
     }
 
     @Override
@@ -230,6 +246,8 @@ public class MainActivity extends BaseActivity implements Constants {
             ITEMS.add(new DAdapter.Item(getString(R.string.cpu_voltage), new CPUVoltageFragment()));
         if (CPUHotplug.hasCpuHotplug())
             ITEMS.add(new DAdapter.Item(getString(R.string.cpu_hotplug), new CPUHotplugFragment()));
+        if (CoreControl.hasMinLittle())
+            ITEMS.add(new DAdapter.Item(getString(R.string.corecontrol), new CoreControlFragment()));
         if (Thermal.hasThermal())
             ITEMS.add(new DAdapter.Item(getString(R.string.thermal), new ThermalFragment()));
         if (GPU.hasGpuControl())
@@ -248,10 +266,12 @@ public class MainActivity extends BaseActivity implements Constants {
         if (LMK.getMinFrees() != null)
             ITEMS.add(new DAdapter.Item(getString(R.string.low_memory_killer), new LMKFragment()));
         ITEMS.add(new DAdapter.Item(getString(R.string.virtual_memory), new VMFragment()));
+        if (WakeLock.hasAnyWakelocks()) {
+            ITEMS.add(new DAdapter.Item(getString(R.string.wakelocks), new WakeLockFragment()));
+        }
         if (Entropy.hasEntropy())
             ITEMS.add(new DAdapter.Item(getString(R.string.entropy), new EntropyFragment()));
         ITEMS.add(new DAdapter.Item(getString(R.string.misc_controls), new MiscFragment()));
-        ITEMS.add(new DAdapter.Item(getString(R.string.plugins), new PluginsFragment()));
         ITEMS.add(new DAdapter.Header(getString(R.string.tools)));
         Downloads downloads;
         if ((downloads = new Downloads(this)).isSupported())
@@ -259,11 +279,12 @@ public class MainActivity extends BaseActivity implements Constants {
                     DownloadsFragment.newInstance(downloads.getLink())));
         if (Backup.hasBackup())
             ITEMS.add(new DAdapter.Item(getString(R.string.backup), new BackupFragment()));
-        if (Buildprop.hasBuildprop())
+        if (Buildprop.hasBuildprop() && RootUtils.busyboxInstalled())
             ITEMS.add(new DAdapter.Item(getString(R.string.build_prop_editor), new BuildpropFragment()));
         ITEMS.add(new DAdapter.Item(getString(R.string.profile), new ProfileFragment()));
         ITEMS.add(new DAdapter.Item(getString(R.string.recovery), new RecoveryFragment()));
         ITEMS.add(new DAdapter.Item(getString(R.string.initd), new InitdFragment()));
+        ITEMS.add(new DAdapter.Item(getString(R.string.startup_commands), new StartUpCommandsFragment()));
         ITEMS.add(new DAdapter.Header(getString(R.string.other)));
         ITEMS.add(new DAdapter.Item(getString(R.string.settings), new SettingsFragment()));
         ITEMS.add(new DAdapter.Item(getString(R.string.faq), new FAQFragment()));
@@ -369,7 +390,7 @@ public class MainActivity extends BaseActivity implements Constants {
         protected Void doInBackground(Void... params) {
             // Check root access and busybox installation
             if (RootUtils.rooted()) hasRoot = RootUtils.rootAccess();
-            if (hasRoot) hasBusybox = RootUtils.busyboxInstalled();
+            if (hasRoot) hasBusybox = RootUtils.hasAppletSupport();
 
             if (hasRoot && hasBusybox) {
                 // Set permissions to specific files which are not readable by default
@@ -379,6 +400,7 @@ public class MainActivity extends BaseActivity implements Constants {
 
                 setList();
             }
+            check_writeexternalstorage();
             return null;
         }
 
@@ -404,7 +426,9 @@ public class MainActivity extends BaseActivity implements Constants {
                 finish();
                 return;
             }
-
+            if (Utils.getBoolean("updatecheck", true, getApplicationContext())) {
+                checkForAppUpdate();
+            }
             mSplashView.finish();
             setInterface();
 
@@ -463,17 +487,12 @@ public class MainActivity extends BaseActivity implements Constants {
                     if (pressAgain) {
                         Utils.toast(getString(R.string.press_back_again), this);
                         pressAgain = false;
-                        new Thread(new Runnable() {
+                        new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                try {
-                                    Thread.sleep(2000);
-                                    pressAgain = true;
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
+                                pressAgain = true;
                             }
-                        }).start();
+                        }, 2000);
                     } else super.onBackPressed();
                 } else mDrawerLayout.closeDrawer(mScrimInsetsFrameLayout);
         } catch (Exception e) {
@@ -516,6 +535,86 @@ public class MainActivity extends BaseActivity implements Constants {
      */
     public interface OnBackButtonListener {
         boolean onBackPressed();
+    }
+
+    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
+
+    @TargetApi(23)
+    private void check_writeexternalstorage() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            int hasWriteExternalPermission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (hasWriteExternalPermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_CODE_ASK_PERMISSIONS);
+                return;
+            }
+        }
+        return;
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void checkForAppUpdate() {
+        Log.d(TAG, "Checking for app update...");
+
+
+        UpdateChecker.checkForUpdate(new UpdateChecker.Callback() {
+            @Override
+            public void onSuccess(final UpdateChecker.AppUpdateData appUpdateData) {
+                Log.d(TAG, "update check onSuccess");
+
+                if (UpdateChecker.isOldVersion(appUpdateData)) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("New Version Available")
+                            .setMessage("Please download the new app version (Build "+ appUpdateData.currentBuildNumber + ")")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    final ProgressDialog progressDialog = ProgressDialog.show(MainActivity.this, "Updating", "Downloading app update");
+
+                                    UpdateChecker.downloadNewVersion(appUpdateData, getExternalCacheDir(), new UpdateChecker.DownloadCallback() {
+                                        @Override
+                                        public void onSuccess(File file) {
+                                            progressDialog.hide();
+                                            Log.i(TAG, "We got file " + file.toURI().toString() + " back");
+
+                                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                                            intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
+                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(intent);
+                                        }
+
+                                        @Override
+                                        public void onError() {
+                                            progressDialog.hide();
+                                        }
+                                    });
+                                }
+                            })
+                            .setNegativeButton("Later", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            })
+                            .show();
+                }
+            }
+
+            @Override
+            public void onError() {
+                Log.w(TAG, "update check onSuccess");
+            }
+        } , getString(R.string.APP_UPDATE_URL));
     }
 
 }

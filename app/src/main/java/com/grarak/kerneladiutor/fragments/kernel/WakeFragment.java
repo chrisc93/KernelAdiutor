@@ -45,9 +45,11 @@ public class WakeFragment extends RecyclerViewFragment implements PopupCardView.
     private PopupCardView.DPopupCard mDt2sCard;
     private SwitchCardView.DSwitchCard[] mGestureCards;
     private SwitchCardView.DSwitchCard mCameraGestureCard;
+    private SwitchCardView.DSwitchCard mTWCard;
+    private SwitchCardView.DSwitchCard mMWCard;
     private SwitchCardView.DSwitchCard mPocketModeCard;
 
-    private SeekBarCardView.DSeekBarCard mWakeTimeoutCard, mWakeGesturesVibStrengthCard;
+    private SeekBarCardView.DSeekBarCard mWakeTimeoutCard, mS2WTimeCard, mDT2WTimeBetweenTapsCard, mDT2WFeatherXCard, mDT2WFeatherYCard, mWakeGesturesVibStrengthCard;
     private SwitchCardView.DSwitchCard mPowerKeySuspendCard;
 
     @Override
@@ -58,15 +60,35 @@ public class WakeFragment extends RecyclerViewFragment implements PopupCardView.
         if (Wake.hasDt2w()) dt2wInit();
         if (Wake.hasS2w()) s2wInit();
         if (Wake.hasLenient()) lenientInit();
-        if (Wake.hasT2w()) t2wInit();
+        if (Wake.hasT2w() && !Wake.hasDt2w()) t2wInit();
         if (Wake.hasWakeMisc()) wakeMiscInit();
         if (Wake.hasSleepMisc()) sleepMiscInit();
         if (Wake.hasDt2s()) dt2sInit();
         if (Wake.hasGesture()) gestureInit();
         if (Wake.hasCameraGesture()) cameraGestureInit();
+        if (Wake.hasTW()) TWInit();
+        if (Wake.hasTW()) MWInit();
         if (Wake.hasPocketMode()) pocketModeInit();
         if (Wake.hasWakeTimeout()) wakeTimeoutInit();
         if (Wake.hasPowerKeySuspend()) powerKeySuspendInit();
+        if (Wake.hasS2WTime()) S2WTimeInit();
+        if (Wake.hasDT2WTimeBetweenTaps()) DT2WTimeBetweenTapsInit();
+        if (Wake.hasDT2WFeatherX()) DT2WFeatherXInit();
+        if (Wake.hasDT2WFeatherY()) DT2WFeatherYInit();
+    }
+
+    private void vibstrengthInit() {
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < 91; i++)
+            list.add(Integer.toString(i));
+
+        mWakeGesturesVibStrengthCard = new SeekBarCardView.DSeekBarCard(list);
+        mWakeGesturesVibStrengthCard.setTitle(getString(R.string.vib_strength));
+        mWakeGesturesVibStrengthCard.setDescription(getString(R.string.vib_strength_summary));
+        mWakeGesturesVibStrengthCard.setProgress(Wake.getvibstrength());
+        mWakeGesturesVibStrengthCard.setOnDSeekBarCardListener(this);
+
+        addView(mWakeGesturesVibStrengthCard);
     }
 
     private void vibstrengthInit() {
@@ -134,7 +156,8 @@ public class WakeFragment extends RecyclerViewFragment implements PopupCardView.
 
     private void sleepMiscInit() {
         mSleepMiscCard = new PopupCardView.DPopupCard(Wake.getSleepMiscMenu(getActivity()));
-        mSleepMiscCard.setDescription(getString(R.string.sleep));
+        mSleepMiscCard.setTitle(getString(R.string.sleep));
+        mSleepMiscCard.setDescription(getString(R.string.sleep_summary));
         mSleepMiscCard.setItem(Wake.getSleepMisc());
         mSleepMiscCard.setOnDPopupCardListener(this);
 
@@ -174,6 +197,25 @@ public class WakeFragment extends RecyclerViewFragment implements PopupCardView.
         addView(mCameraGestureCard);
     }
 
+    private void TWInit() {
+        mTWCard = new SwitchCardView.DSwitchCard();
+        mTWCard.setTitle(getString(R.string.TW));
+        mTWCard.setDescription(getString(R.string.TW_summary));
+        mTWCard.setChecked(Wake.isTWActive());
+        mTWCard.setOnDSwitchCardListener(this);
+
+        addView(mTWCard);
+    }
+    private void MWInit() {
+        mMWCard = new SwitchCardView.DSwitchCard();
+        mMWCard.setTitle(getString(R.string.MW));
+        mMWCard.setDescription(getString(R.string.MW_summary));
+        mMWCard.setChecked(Wake.isMWActive());
+        mMWCard.setOnDSwitchCardListener(this);
+
+        addView(mMWCard);
+    }
+
     private void pocketModeInit() {
         mPocketModeCard = new SwitchCardView.DSwitchCard();
         mPocketModeCard.setTitle(getString(R.string.pocket_mode));
@@ -209,6 +251,62 @@ public class WakeFragment extends RecyclerViewFragment implements PopupCardView.
         addView(mPowerKeySuspendCard);
     }
 
+    private void S2WTimeInit() {
+        List<String> list = new ArrayList<>();
+        for (int i = 1; i <= 200; i++)
+            list.add(i * 10 + getString(R.string.ms));
+
+        mS2WTimeCard = new SeekBarCardView.DSeekBarCard(list);
+        mS2WTimeCard.setTitle(getString(R.string.wake_S2W_time));
+        mS2WTimeCard.setDescription(getString(R.string.wake_S2W_time_summary));
+        mS2WTimeCard.setProgress(Wake.getS2WTime() - 1);
+        mS2WTimeCard.setOnDSeekBarCardListener(this);
+
+        addView(mS2WTimeCard);
+    }
+
+    private void DT2WTimeBetweenTapsInit() {
+        List<String> list = new ArrayList<>();
+        for (int i = 25; i <= 100; i++)
+            list.add(i * 10 + getString(R.string.ms));
+
+        mDT2WTimeBetweenTapsCard = new SeekBarCardView.DSeekBarCard(list);
+        mDT2WTimeBetweenTapsCard.setTitle(getString(R.string.wake_dt2w_timebetweentaps));
+        mDT2WTimeBetweenTapsCard.setDescription(getString(R.string.wake_dt2w_timebetweentaps_summary));
+        mDT2WTimeBetweenTapsCard.setProgress(Wake.getDT2WTimeBetweenTaps() - 25);
+        mDT2WTimeBetweenTapsCard.setOnDSeekBarCardListener(this);
+
+        addView(mDT2WTimeBetweenTapsCard);
+    }
+
+    private void DT2WFeatherXInit() {
+        List<String> list = new ArrayList<>();
+        for (int i = 1; i <= 500; i++)
+            list.add(i + getString(R.string.pixel));
+
+        mDT2WFeatherXCard = new SeekBarCardView.DSeekBarCard(list);
+        mDT2WFeatherXCard.setTitle(getString(R.string.wake_dt2w_featherx));
+        mDT2WFeatherXCard.setDescription(getString(R.string.wake_dt2w_featherx_summary));
+        mDT2WFeatherXCard.setProgress(Wake.getDT2WFeatherX() - 1);
+        mDT2WFeatherXCard.setOnDSeekBarCardListener(this);
+
+        addView(mDT2WFeatherXCard);
+    }
+
+    private void DT2WFeatherYInit() {
+        List<String> list = new ArrayList<>();
+        for (int i = 1; i <= 500; i++)
+            list.add(i + getString(R.string.pixel));
+
+        mDT2WFeatherYCard = new SeekBarCardView.DSeekBarCard(list);
+        mDT2WFeatherYCard.setTitle(getString(R.string.wake_dt2w_feathery));
+        mDT2WFeatherYCard.setDescription(getString(R.string.wake_dt2w_feathery_summary));
+        mDT2WFeatherYCard.setProgress(Wake.getDT2WFeatherY() - 1);
+        mDT2WFeatherYCard.setOnDSeekBarCardListener(this);
+
+        addView(mDT2WFeatherYCard);
+    }
+
     @Override
     public void onItemSelected(PopupCardView.DPopupCard dPopupCard, int position) {
         if (dPopupCard == mDt2wCard) Wake.setDt2w(position, getActivity());
@@ -227,6 +325,10 @@ public class WakeFragment extends RecyclerViewFragment implements PopupCardView.
     public void onStop(SeekBarCardView.DSeekBarCard dSeekBarCard, int position) {
         if (dSeekBarCard == mWakeGesturesVibStrengthCard) Wake.setvibstrength(position, getActivity());
         else if (dSeekBarCard == mWakeTimeoutCard) Wake.setWakeTimeout(position, getActivity());
+        else if (dSeekBarCard == mS2WTimeCard) Wake.setS2WTime(position + 1, getActivity());
+        else if (dSeekBarCard == mDT2WTimeBetweenTapsCard) Wake.setDT2WTimeBetweenTaps(position + 25, getActivity());
+        else if (dSeekBarCard == mDT2WFeatherXCard) Wake.setDT2WFeatherX(position + 1, getActivity());
+        else if (dSeekBarCard == mDT2WFeatherYCard) Wake.setDT2WFeatherY(position + 1, getActivity());
     }
 
     @Override
@@ -235,6 +337,10 @@ public class WakeFragment extends RecyclerViewFragment implements PopupCardView.
             Wake.activateLenient(checked, getActivity());
         else if (dSwitchCard == mCameraGestureCard)
             Wake.activateCameraGesture(checked, getActivity());
+        else if (dSwitchCard == mTWCard)
+            Wake.activateTW(checked, getActivity());
+        else if (dSwitchCard == mMWCard)
+            Wake.activateMW(checked, getActivity());
         else if (dSwitchCard == mPocketModeCard)
             Wake.activatePocketMode(checked, getActivity());
         else if (dSwitchCard == mPowerKeySuspendCard)

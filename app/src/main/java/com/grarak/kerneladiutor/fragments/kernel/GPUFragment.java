@@ -45,6 +45,8 @@ public class GPUFragment extends RecyclerViewFragment implements PopupCardView.D
 
     private PopupCardView.DPopupCard m2dGovernorCard, mGovernorCard;
 
+    private SwitchCardView.DSwitchCard mGamingModeGpuCard;
+
     private SwitchCardView.DSwitchCard mSimpleGpuCard;
     private SeekBarCardView.DSeekBarCard mSimpleGpuLazinessCard, mSimpleGpuRampThresoldCard;
 
@@ -59,6 +61,7 @@ public class GPUFragment extends RecyclerViewFragment implements PopupCardView.D
         maxFreqInit();
         minFreqInit();
         governorInit();
+        if (GPU.hasGPUMinPowerLevel()) gamingmodeInit();
         if (GPU.hasSimpleGpu()) simpleGpuInit();
         if (GPU.hasAdrenoIdler()) adrenoIdlerInit();
     }
@@ -96,13 +99,23 @@ public class GPUFragment extends RecyclerViewFragment implements PopupCardView.D
 
         if (GPU.hasGpuMaxFreq() && GPU.hasGpuFreqs()) {
             List<String> freqs = new ArrayList<>();
-            for (int freq : GPU.getGpuFreqs())
-                freqs.add(freq / 1000000 + getString(R.string.mhz));
+            for (int freq : GPU.getGpuFreqs()) {
+                if ((freq / 1000000) == 0) {
+                    freqs.add(freq / 1000 + getString(R.string.mhz));
+                } else {
+                    freqs.add(freq / 1000000 + getString(R.string.mhz));
+                }
+            }
 
             mMaxFreqCard = new PopupCardView.DPopupCard(freqs);
             mMaxFreqCard.setTitle(getString(R.string.gpu_max_freq));
             mMaxFreqCard.setDescription(getString(R.string.gpu_max_freq_summary));
-            mMaxFreqCard.setItem(GPU.getGpuMaxFreq() / 1000000 + getString(R.string.mhz));
+            if ((GPU.getGpuMaxFreq() / 1000000) == 0) {
+                mMaxFreqCard.setItem(GPU.getGpuMaxFreq() / 1000 + getString(R.string.mhz));
+            }
+            else {
+                mMaxFreqCard.setItem(GPU.getGpuMaxFreq() / 1000000 + getString(R.string.mhz));
+            }
             mMaxFreqCard.setOnDPopupCardListener(this);
 
             addView(mMaxFreqCard);
@@ -112,13 +125,24 @@ public class GPUFragment extends RecyclerViewFragment implements PopupCardView.D
     private void minFreqInit() {
         if (GPU.hasGpuMinFreq() && GPU.hasGpuFreqs()) {
             List<String> freqs = new ArrayList<>();
-            for (int freq : GPU.getGpuFreqs())
-                freqs.add(freq / 1000000 + getString(R.string.mhz));
+            for (int freq : GPU.getGpuFreqs()) {
+                if ((freq/1000000) == 0) {
+                    freqs.add(freq / 1000 + getString(R.string.mhz));
+                }
+                else {
+                    freqs.add(freq / 1000000 + getString(R.string.mhz));
+                }
+            }
 
             mMinFreqCard = new PopupCardView.DPopupCard(freqs);
             mMinFreqCard.setTitle(getString(R.string.gpu_min_freq));
             mMinFreqCard.setDescription(getString(R.string.gpu_min_freq_summary));
-            mMinFreqCard.setItem(GPU.getGpuMinFreq() / 1000000 + getString(R.string.mhz));
+            if ((GPU.getGpuMinFreq() / 1000000) == 0) {
+                mMinFreqCard.setItem(GPU.getGpuMinFreq() / 1000 + getString(R.string.mhz));
+            }
+            else {
+                mMinFreqCard.setItem(GPU.getGpuMinFreq() / 1000000 + getString(R.string.mhz));
+            }
             mMinFreqCard.setOnDPopupCardListener(this);
 
             addView(mMinFreqCard);
@@ -146,6 +170,20 @@ public class GPUFragment extends RecyclerViewFragment implements PopupCardView.D
             addView(mGovernorCard);
         }
     }
+
+    private void gamingmodeInit() {
+        if (GPU.hasGPUMinPowerLevel()) {
+            mGamingModeGpuCard = new SwitchCardView.DSwitchCard();
+            mGamingModeGpuCard.setTitle(getString(R.string.gpu_gaming_mode));
+            mGamingModeGpuCard.setDescription(getString(R.string.gpu_gaming_mode_summary));
+            mGamingModeGpuCard.setChecked(GPU.isGamingModeActive());
+            mGamingModeGpuCard.setOnDSwitchCardListener(this);
+
+            addView(mGamingModeGpuCard);
+        }
+    }
+
+
 
     private void simpleGpuInit() {
         DDivider mSimpleGpuDividerCard = new DDivider();
@@ -249,6 +287,7 @@ public class GPUFragment extends RecyclerViewFragment implements PopupCardView.D
     public void onChecked(SwitchCardView.DSwitchCard dSwitchCard, boolean checked) {
         if (dSwitchCard == mSimpleGpuCard) GPU.activateSimpleGpu(checked, getActivity());
         else if (dSwitchCard == mAdrenoIdlerCard) GPU.activateAdrenoIdler(checked, getActivity());
+        else if (dSwitchCard == mGamingModeGpuCard) GPU.activateGamingMode(checked, getActivity());
     }
 
     @Override
@@ -275,7 +314,12 @@ public class GPUFragment extends RecyclerViewFragment implements PopupCardView.D
             mCur2dFreqCard.setDescription((GPU.getGpu2dCurFreq() / 1000000) + getString(R.string.mhz));
 
         if (mCurFreqCard != null)
-            mCurFreqCard.setDescription((GPU.getGpuCurFreq() / 1000000) + getString(R.string.mhz));
+           if ((GPU.getGpuCurFreq() / 1000000) == 0) {
+               mCurFreqCard.setDescription((GPU.getGpuCurFreq() / 1000) + getString(R.string.mhz));
+           }
+           else {
+               mCurFreqCard.setDescription((GPU.getGpuCurFreq() / 1000000) + getString(R.string.mhz));
+           }
         return true;
     }
 }

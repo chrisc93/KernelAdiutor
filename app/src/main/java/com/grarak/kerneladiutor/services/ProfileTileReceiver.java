@@ -42,19 +42,20 @@ public class ProfileTileReceiver extends BroadcastReceiver {
 
     private static final String NAME = "name";
     private static final String COMMANDS = "commands";
-    private static final String ACTION_TOGGLE_STATE = "com.grarak.kerneladiutor.action.ACTION_TOGGLE_STATE";
+    private static final String ACTION_TOGGLE_STATE = "com.kerneladiutor.mod.action.ACTION_TOGGLE_STATE";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (ACTION_TOGGLE_STATE.equals(intent.getAction())) {
             String[] commands = intent.getStringArrayExtra(COMMANDS);
             log("Applying: " + intent.getStringExtra(NAME));
+            Utils.toast("Applying: " + intent.getStringExtra(NAME), context);
             if (commands == null) return;
             if (!RootUtils.rootAccess()) {
                 Utils.toast(context.getString(R.string.no_root), context);
                 return;
             }
-            if (!RootUtils.busyboxInstalled()) {
+            if (!RootUtils.hasAppletSupport()) {
                 Utils.toast(context.getString(R.string.no_busybox), context);
                 return;
             }
@@ -64,6 +65,7 @@ public class ProfileTileReceiver extends BroadcastReceiver {
                 su.runCommand(command);
                 Log.i(Constants.TAG + ": " + getClass().getSimpleName(), "Run: " + command);
             }
+            Utils.toast("Applied: " + intent.getStringExtra(NAME), context);
             su.close();
         }
     }

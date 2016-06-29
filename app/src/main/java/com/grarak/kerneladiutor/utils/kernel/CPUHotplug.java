@@ -22,6 +22,7 @@ import com.grarak.kerneladiutor.R;
 import com.grarak.kerneladiutor.utils.Constants;
 import com.grarak.kerneladiutor.utils.Utils;
 import com.grarak.kerneladiutor.utils.root.Control;
+import com.kerneladiutor.library.root.RootUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,6 @@ public class CPUHotplug implements Constants {
     private static String MSM_HOTPLUG_IO_IS_BUSY_FILE;
     private static String MSM_HOTPLUG_SUSPEND_FREQ_FILE;
 
-    private static String MB_HOTPLUG_FILE;
     private static String MB_HOTPLUG_MIN_CPUS_FILE;
     private static String MB_HOTPLUG_MAX_CPUS_FILE;
 
@@ -144,6 +144,7 @@ public class CPUHotplug implements Constants {
 
     public static void activateAutoSmp(boolean active, Context context) {
         Control.runCommand(active ? "Y" : "N", HOTPLUG_AUTOSMP_ENABLE, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("AutoSMP", context);
     }
 
     public static boolean isAutoSmpActive() {
@@ -157,6 +158,265 @@ public class CPUHotplug implements Constants {
     public static boolean hasAutoSmp() {
         for (String file : HOTPLUG_AUTOSMP_ARRAY) if (Utils.existFile(file)) return true;
         return false;
+    }
+
+    public static void activateLazyPlugTouchBoost(boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", HOTPLUG_LAZYPLUG_TOUCH_BOOST_ACTIVE, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("LazyPlug", context);
+      }
+
+    public static boolean isLazyPlugTouchBoostActive() {
+        return Utils.readFile(HOTPLUG_LAZYPLUG_TOUCH_BOOST_ACTIVE).equals("1");
+    }
+
+    public static boolean hasLazyPlugTouchBoostActive() {
+        return Utils.existFile(HOTPLUG_LAZYPLUG_TOUCH_BOOST_ACTIVE);
+    }
+
+    public static void setLazyPlugProfile(int value, Context context) {
+        String file = HOTPLUG_LAZYPLUG_NR_RUN_PROFILE_SET;
+        Control.runCommand(String.valueOf(value), file, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getLazyPlugProfile() {
+        String file = HOTPLUG_LAZYPLUG_NR_RUN_PROFILE_SET;
+        return Utils.stringToInt(Utils.readFile(file));
+    }
+
+    public static List<String> getLazyPlugProfileMenu(Context context) {
+        List<String> list = new ArrayList<>();
+        list.add(context.getString(R.string.balanced));
+        list.add(context.getString(R.string.performance));
+        list.add(context.getString(R.string.conservative));
+        list.add(context.getString(R.string.eco));
+        list.add(context.getString(R.string.eco_extreme));
+        list.add(context.getString(R.string.disabled));
+        return list;
+    }
+
+    public static boolean hasLazyPlugProfile() {
+        String file = HOTPLUG_LAZYPLUG_NR_RUN_PROFILE_SET;
+        return Utils.existFile(file);
+    }
+
+    public static void setLazyPlugNrRunHysteresis(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_LAZYPLUG_NR_RUN_HYSTERESIS, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getLazyPlugNrRunHysteresis() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_LAZYPLUG_NR_RUN_HYSTERESIS));
+    }
+
+    public static boolean hasLazyPlugNrRunHysteresis() {
+        return Utils.existFile(HOTPLUG_LAZYPLUG_NR_RUN_HYSTERESIS);
+    }
+
+    public static void setLazyPlugNrPossibleCores(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_LAZYPLUG_NR_POSSIBLE_CORES, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getLazyPlugNrPossibleCores() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_LAZYPLUG_NR_POSSIBLE_CORES));
+    }
+
+    public static boolean hasLazyPlugNrPossibleCores() {
+        return Utils.existFile(HOTPLUG_LAZYPLUG_NR_POSSIBLE_CORES);
+    }
+
+    public static void setLazyPlugCpuNrRunTreshold(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_LAZYPLUG_CPU_NR_RUN_TRESHOLD, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getLazyPlugCpuNrRunTreshold() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_LAZYPLUG_CPU_NR_RUN_TRESHOLD));
+    }
+
+    public static boolean hasLazyPlugCpuNrRunTreshold() {
+        return Utils.existFile(HOTPLUG_LAZYPLUG_CPU_NR_RUN_TRESHOLD);
+    }
+
+    public static void activateLazyPlug(boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", HOTPLUG_LAZYPLUG_ACTIVE, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("Lazyplug", context);
+    }
+
+    public static boolean isLazyPlugActive() {
+        return Utils.readFile(HOTPLUG_LAZYPLUG_ACTIVE).equals("1");
+    }
+
+    public static boolean hasLazyPlugEnable() {
+        return Utils.existFile(HOTPLUG_LAZYPLUG_ACTIVE);
+    }
+
+    public static boolean hasLazyPlug() {
+        for (String file : HOTPLUG_LAZYPLUG_ARRAY) if (Utils.existFile(file)) return true;
+        return false;
+    }
+
+    public static void setDynPlugDownTimerCnt(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_DYN_PLUG_DOWN_TIMER_CNT, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getDynPlugDownTimerCnt() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_DYN_PLUG_DOWN_TIMER_CNT));
+    }
+
+    public static boolean hasDynPlugDownTimerCnt() {
+        return Utils.existFile(HOTPLUG_DYN_PLUG_DOWN_TIMER_CNT);
+    }
+
+    public static void setDynPlugUpTimerCnt(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_DYN_PLUG_UP_TIMER_CNT, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getDynPlugUpTimerCnt() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_DYN_PLUG_UP_TIMER_CNT));
+    }
+
+    public static boolean hasDynPlugUpTimerCnt() {
+        return Utils.existFile(HOTPLUG_DYN_PLUG_UP_TIMER_CNT);
+    }
+
+    public static void setDynPlugUpThreshold(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_DYN_PLUG_UP_THRESHOLD, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getDynPlugUpThreshold() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_DYN_PLUG_UP_THRESHOLD));
+    }
+
+    public static boolean hasDynPlugUpThreshold() {
+        return Utils.existFile(HOTPLUG_DYN_PLUG_UP_THRESHOLD);
+    }
+
+    public static void setDynPlugMaxOnline(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_DYN_PLUG_MAX_ONLINE, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getDynPlugMaxOnline() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_DYN_PLUG_MAX_ONLINE));
+    }
+
+    public static boolean hasDynPlugMaxOnline() {
+        return Utils.existFile(HOTPLUG_DYN_PLUG_MAX_ONLINE);
+    }
+
+    public static void setDynPlugMinOnline(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_DYN_PLUG_MIN_ONLINE, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getDynPlugMinOnline() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_DYN_PLUG_MIN_ONLINE));
+    }
+
+    public static boolean hasDynPlugMinOnline() {
+        return Utils.existFile(HOTPLUG_DYN_PLUG_MIN_ONLINE);
+    }
+
+    public static void activateDynPlug(boolean active, Context context) {
+        Control.runCommand(active ? "Y" : "N", HOTPLUG_DYN_PLUG_ENABLE, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("DynPlug", context);
+    }
+
+    public static boolean isDynPlugActive() {
+        return Utils.readFile(HOTPLUG_DYN_PLUG_ENABLE).equals("Y");
+    }
+
+    public static boolean hasDynPlugEnable() {
+        return Utils.existFile(HOTPLUG_DYN_PLUG_ENABLE);
+    }
+
+    public static boolean hasDynPlug() {
+        return Utils.existFile(HOTPLUG_DYN_PLUG);
+    }
+
+    public static void setAutoHotplugDisableLoadTreshold(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_AUTO_HOTPLUG_DISABLE_LOAD_THRESHOLD, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getAutoHotplugDisableLoadTreshold() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_AUTO_HOTPLUG_DISABLE_LOAD_THRESHOLD));
+    }
+
+    public static boolean hasAutoHotplugDisableLoadTreshold() {
+        return Utils.existFile(HOTPLUG_AUTO_HOTPLUG_DISABLE_LOAD_THRESHOLD);
+    }
+
+    public static void setAutoHotplugEnableLoadTreshold(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_AUTO_HOTPLUG_ENABLE_LOAD_THRESHOLD, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getAutoHotplugEnableLoadTreshold() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_AUTO_HOTPLUG_ENABLE_LOAD_THRESHOLD));
+    }
+
+    public static boolean hasAutoHotplugEnableLoadTreshold() {
+        return Utils.existFile(HOTPLUG_AUTO_HOTPLUG_ENABLE_LOAD_THRESHOLD);
+    }
+
+    public static void setAutoHotplugEnableAllLoadTreshold(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_AUTO_HOTPLUG_ENABLE_ALL_LOAD_THRESHOLD, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getAutoHotplugEnableAllLoadTreshold() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_AUTO_HOTPLUG_ENABLE_ALL_LOAD_THRESHOLD));
+    }
+
+    public static boolean hasAutoHotplugEnableAllLoadTreshold() {
+        return Utils.existFile(HOTPLUG_AUTO_HOTPLUG_ENABLE_ALL_LOAD_THRESHOLD);
+    }
+
+    public static void setAutoHotplugMaxOnline(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_AUTO_HOTPLUG_MAX_ONLINE, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getAutoHotplugMaxOnline() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_AUTO_HOTPLUG_MAX_ONLINE));
+    }
+
+    public static boolean hasAutoHotplugMaxOnline() {
+        return Utils.existFile(HOTPLUG_AUTO_HOTPLUG_MAX_ONLINE);
+    }
+
+    public static void setAutoHotplugMinOnline(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_AUTO_HOTPLUG_MIN_ONLINE, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getAutoHotplugMinOnline() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_AUTO_HOTPLUG_MIN_ONLINE));
+    }
+
+    public static boolean hasAutoHotplugMinOnline() {
+        return Utils.existFile(HOTPLUG_AUTO_HOTPLUG_MIN_ONLINE);
+    }
+
+    public static void setAutoHotplugSamplingPeriods(int value, Context context) {
+        Control.runCommand(String.valueOf(value), HOTPLUG_AUTO_HOTPLUG_SAMPLING_PERIODS, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getAutoHotplugSamplingPeriods() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_AUTO_HOTPLUG_SAMPLING_PERIODS));
+    }
+
+    public static boolean hasAutoHotplugSamplingPeriods() {
+        return Utils.existFile(HOTPLUG_AUTO_HOTPLUG_SAMPLING_PERIODS);
+    }
+
+    public static void activateAutoHotplug(boolean active, Context context) {
+        Control.runCommand(active ? "Y" : "N", HOTPLUG_AUTO_HOTPLUG_ENABLE, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("AutoHotplug", context);
+    }
+
+    public static boolean isAutoHotplugActive() {
+        return Utils.readFile(HOTPLUG_AUTO_HOTPLUG_ENABLE).equals("Y");
+    }
+
+    public static boolean hasAutoHotplugEnable() {
+        return Utils.existFile(HOTPLUG_AUTO_HOTPLUG_ENABLE);
+    }
+
+    public static boolean hasAutoHotplug() {
+        return Utils.existFile(HOTPLUG_AUTO_HOTPLUG);
     }
 
     public static void setZenDecisionBatThresholdIgnore(int value, Context context) {
@@ -185,6 +445,7 @@ public class CPUHotplug implements Constants {
 
     public static void activateZenDecision(boolean active, Context context) {
         Control.runCommand(active ? "1" : "0", HOTPLUG_ZEN_DECISION_ENABLE, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("ZenDecision", context);
     }
 
     public static boolean isZenDecisionActive() {
@@ -201,7 +462,7 @@ public class CPUHotplug implements Constants {
 
     public static void activateThunderPlugTouchBoost(boolean active, Context context) {
         Control.runCommand(active ? "1" : "0", HOTPLUG_THUNDER_PLUG_TOUCH_BOOST, Control.CommandType.GENERIC, context);
-    }
+      }
 
     public static boolean isThunderPlugTouchBoostActive() {
         return Utils.readFile(HOTPLUG_THUNDER_PLUG_TOUCH_BOOST).equals("1");
@@ -209,6 +470,18 @@ public class CPUHotplug implements Constants {
 
     public static boolean hasThunderPlugTouchBoost() {
         return Utils.existFile(HOTPLUG_THUNDER_PLUG_TOUCH_BOOST);
+    }
+
+    public static void activateThunderPlugSchedBoost(boolean active, Context context) {
+        Control.runCommand(active ? "2" : "1", HOTPLUG_THUNDER_PLUG_SCHED_BOOST, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isThunderPlugSchedBoostActive() {
+        return Utils.readFile(HOTPLUG_THUNDER_PLUG_SCHED_BOOST).equals("2");
+    }
+
+    public static boolean hasThunderPlugSchedBoost() {
+        return Utils.existFile(HOTPLUG_THUNDER_PLUG_SCHED_BOOST);
     }
 
     public static void setThunderPlugLoadThreshold(int value, Context context) {
@@ -247,6 +520,18 @@ public class CPUHotplug implements Constants {
         return Utils.existFile(HOTPLUG_THUNDER_PLUG_ENDURANCE_LEVEL);
     }
 
+    public static void setThunderPlughpstyle(int value, Context context) {
+    Control.runCommand(String.valueOf(value), HOTPLUG_THUNDER_HP_STYLE, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getThunderPlughpstyle() {
+        return Utils.stringToInt(Utils.readFile(HOTPLUG_THUNDER_HP_STYLE));
+    }
+
+    public static boolean hasThunderPlughpstyle() {
+        return Utils.existFile(HOTPLUG_THUNDER_HP_STYLE);
+    }
+
     public static void setThunderPlugSuspendCpus(int value, Context context) {
         Control.runCommand(String.valueOf(value), HOTPLUG_THUNDER_PLUG_SUSPEND_CPUS, Control.CommandType.GENERIC, context);
     }
@@ -261,6 +546,7 @@ public class CPUHotplug implements Constants {
 
     public static void activateThunderPlug(boolean active, Context context) {
         Control.runCommand(active ? "1" : "0", HOTPLUG_THUNDER_PLUG_ENABLE, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("ThunderPlug", context);
     }
 
     public static boolean isThunderPlugActive() {
@@ -373,6 +659,7 @@ public class CPUHotplug implements Constants {
 
     public static void activateAlucardHotplug(boolean active, Context context) {
         Control.runCommand(active ? "1" : "0", ALUCARD_HOTPLUG_ENABLE, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("AlucardHotplug", context);
     }
 
     public static boolean isAlucardHotplugActive() {
@@ -388,114 +675,126 @@ public class CPUHotplug implements Constants {
     }
 
     public static void setMBHotplugPause(int value, Context context) {
-        Control.runCommand(String.valueOf(value), MB_HOTPLUG_FILE + "/" + MB_PAUSE, Control.CommandType.GENERIC, context);
+        Control.runCommand(String.valueOf(value), Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_PAUSE, Control.CommandType.GENERIC, context);
     }
 
     public static int getMBHotplugPause() {
-        return Utils.stringToInt(Utils.readFile(MB_HOTPLUG_FILE + "/" + MB_PAUSE));
+        return Utils.stringToInt(Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_PAUSE));
     }
 
     public static boolean hasMBHotplugPause() {
-        return Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_PAUSE);
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_PAUSE);
     }
 
     public static void setMBHotplugDelay(int value, Context context) {
-        Control.runCommand(String.valueOf(value), MB_HOTPLUG_FILE + "/" + MB_DELAY, Control.CommandType.GENERIC, context);
+        Control.runCommand(String.valueOf(value), Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_DELAY, Control.CommandType.GENERIC, context);
     }
 
     public static int getMBHotplugDelay() {
-        return Utils.stringToInt(Utils.readFile(MB_HOTPLUG_FILE + "/" + MB_DELAY));
+        return Utils.stringToInt(Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_DELAY));
     }
 
     public static boolean hasMBHotplugDelay() {
-        return Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_DELAY);
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_DELAY);
     }
 
     public static void setMBHotplugStartDelay(int value, Context context) {
-        Control.runCommand(String.valueOf(value), MB_HOTPLUG_FILE + "/" + MB_STARTDELAY, Control.CommandType.GENERIC, context);
+        Control.runCommand(String.valueOf(value), Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_STARTDELAY, Control.CommandType.GENERIC, context);
     }
 
     public static int getMBHotplugStartDelay() {
-        return Utils.stringToInt(Utils.readFile(MB_HOTPLUG_FILE + "/" + MB_STARTDELAY));
+        return Utils.stringToInt(Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_STARTDELAY));
     }
 
     public static boolean hasMBHotplugStartDelay() {
-        return Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_STARTDELAY);
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_STARTDELAY);
+    }
+
+    public static void setBrickedDownLockDuration(int value, Context context) {
+        Control.runCommand(String.valueOf(value), Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_DOWN_LOCK_DURATION, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getBrickedDownLockDuration() {
+        return Utils.stringToInt(Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_DOWN_LOCK_DURATION));
+    }
+
+    public static boolean hasBrickedDownLockDuration() {
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_DOWN_LOCK_DURATION);
     }
 
     public static void setMBHotplugBoostFreqs(int core, int value, Context context) {
-        Control.runCommand(core + " " + value, MB_HOTPLUG_FILE + "/" + MB_BOOST_FREQS, Control.CommandType.GENERIC, context);
+        Control.runCommand(core + " " + value, Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_BOOST_FREQS, Control.CommandType.GENERIC, context);
     }
 
     public static List<Integer> getMBHotplugBoostFreqs() {
         List<Integer> list = new ArrayList<>();
-        for (String freq : Utils.readFile(MB_HOTPLUG_FILE + "/" + MB_BOOST_FREQS).split(" "))
+        for (String freq : Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_BOOST_FREQS).split(" "))
             list.add(Utils.stringToInt(freq));
         return list;
     }
 
     public static boolean hasMBHotplugBoostFreqs() {
-        return Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_BOOST_FREQS);
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_BOOST_FREQS);
     }
 
     public static void setMBHotplugCpusBoosted(int value, Context context) {
-        Control.runCommand(String.valueOf(value), MB_HOTPLUG_FILE + "/" + MB_CPUS_BOOSTED, Control.CommandType.GENERIC, context);
+        Control.runCommand(String.valueOf(value), Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_CPUS_BOOSTED, Control.CommandType.GENERIC, context);
     }
 
     public static int getMBHotplugCpusBoosted() {
-        return Utils.stringToInt(Utils.readFile(MB_HOTPLUG_FILE + "/" + MB_CPUS_BOOSTED));
+        return Utils.stringToInt(Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_CPUS_BOOSTED));
     }
 
     public static boolean hasMBHotplugCpusBoosted() {
-        return Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_CPUS_BOOSTED);
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_CPUS_BOOSTED);
     }
 
     public static void setMBHotplugBoostTime(int value, Context context) {
-        Control.runCommand(String.valueOf(value), MB_HOTPLUG_FILE + "/" + MB_BOOST_TIME, Control.CommandType.GENERIC, context);
+        Control.runCommand(String.valueOf(value), Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_BOOST_TIME, Control.CommandType.GENERIC, context);
     }
 
     public static int getMBHotplugBoostTime() {
-        return Utils.stringToInt(Utils.readFile(MB_HOTPLUG_FILE + "/" + MB_BOOST_TIME));
+        return Utils.stringToInt(Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_BOOST_TIME));
     }
 
     public static boolean hasMBHotplugBoostTime() {
-        return Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_BOOST_TIME);
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_BOOST_TIME);
     }
 
     public static void activateMBHotplugBoost(boolean active, Context context) {
-        Control.runCommand(active ? "1" : "0", MB_HOTPLUG_FILE + "/" + MB_BOOST_ENABLED, Control.CommandType.GENERIC, context);
+        Control.runCommand(active ? "1" : "0", Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_BOOST_ENABLED, Control.CommandType.GENERIC, context);
     }
 
     public static boolean isMBHotplugBoostActive() {
-        return Utils.readFile(MB_HOTPLUG_FILE + "/" + MB_BOOST_ENABLED).equals("1");
+        return Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_BOOST_ENABLED).equals("1");
     }
 
     public static boolean hasMBHotplugBoostEnable() {
-        return Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_BOOST_ENABLED);
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_BOOST_ENABLED);
     }
 
     public static void setMBHotplugIdleFreq(int value, Context context) {
-        Control.runCommand(String.valueOf(value), MB_HOTPLUG_FILE + "/" + MB_IDLE_FREQ, Control.CommandType.GENERIC, context);
+        Control.runCommand(String.valueOf(value), Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_IDLE_FREQ, Control.CommandType.GENERIC, context);
     }
 
     public static int getMBHotplugIdleFreq() {
-        return Utils.stringToInt(Utils.readFile(MB_HOTPLUG_FILE + "/" + MB_IDLE_FREQ));
+        return Utils.stringToInt(Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_IDLE_FREQ));
     }
 
     public static boolean hasMBHotplugIdleFreq() {
-        return Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_IDLE_FREQ);
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_IDLE_FREQ);
     }
 
     public static void setMBHotplugMaxCpusOnlineSusp(int value, Context context) {
-        Control.runCommand(String.valueOf(value), MB_HOTPLUG_FILE + "/" + MB_CPUS_ONLINE_SUSP, Control.CommandType.GENERIC, context);
+        Control.runCommand(String.valueOf(value), Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_CPUS_ONLINE_SUSP, Control.CommandType.GENERIC, context);
     }
 
     public static int getMBHotplugMaxCpusOnlineSusp() {
-        return Utils.stringToInt(Utils.readFile(MB_HOTPLUG_FILE + "/" + MB_CPUS_ONLINE_SUSP));
+        return Utils.stringToInt(Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_CPUS_ONLINE_SUSP));
     }
 
     public static boolean hasMBHotplugMaxCpusOnlineSusp() {
-        return Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_CPUS_ONLINE_SUSP);
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_CPUS_ONLINE_SUSP);
     }
 
     public static void setMBHotplugMaxCpus(int value, Context context) {
@@ -507,10 +806,10 @@ public class CPUHotplug implements Constants {
     }
 
     public static boolean hasMBHotplugMaxCpus() {
-        if (Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_MAX_CPUS))
-            MB_HOTPLUG_MAX_CPUS_FILE = MB_HOTPLUG_FILE + "/" + MB_MAX_CPUS;
-        else if (Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_MAX_CPUS_ONLINE))
-            MB_HOTPLUG_MAX_CPUS_FILE = MB_HOTPLUG_FILE + "/" + MB_MAX_CPUS_ONLINE;
+        if (Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_MAX_CPUS))
+            MB_HOTPLUG_MAX_CPUS_FILE = Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_MAX_CPUS;
+        else if (Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_MAX_CPUS_ONLINE))
+            MB_HOTPLUG_MAX_CPUS_FILE = Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_MAX_CPUS_ONLINE;
         return MB_HOTPLUG_MAX_CPUS_FILE != null;
     }
 
@@ -523,52 +822,95 @@ public class CPUHotplug implements Constants {
     }
 
     public static boolean hasMBHotplugMinCpus() {
-        if (Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_MIN_CPUS))
-            MB_HOTPLUG_MIN_CPUS_FILE = MB_HOTPLUG_FILE + "/" + MB_MIN_CPUS;
-        else if (Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_MIN_CPUS_ONLINE))
-            MB_HOTPLUG_MIN_CPUS_FILE = MB_HOTPLUG_FILE + "/" + MB_MIN_CPUS_ONLINE;
+        if (Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_MIN_CPUS))
+            MB_HOTPLUG_MIN_CPUS_FILE = Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_MIN_CPUS;
+        else if (Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_MIN_CPUS_ONLINE))
+            MB_HOTPLUG_MIN_CPUS_FILE = Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_MIN_CPUS_ONLINE;
         return MB_HOTPLUG_MIN_CPUS_FILE != null;
     }
 
     public static void activateMBHotplugScroffSingleCore(boolean active, Context context) {
-        Control.runCommand(active ? "1" : "0", MB_HOTPLUG_FILE + "/" + MB_SCROFF_SINGLE_CORE, Control.CommandType.GENERIC, context);
+        Control.runCommand(active ? "1" : "0", Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_SCROFF_SINGLE_CORE, Control.CommandType.GENERIC, context);
     }
 
     public static boolean isMBHotplugScroffSingleCoreActive() {
-        return Utils.readFile(MB_HOTPLUG_FILE + "/" + MB_SCROFF_SINGLE_CORE).equals("1");
+        return Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_SCROFF_SINGLE_CORE).equals("1");
     }
 
     public static boolean hasMBHotplugScroffSingleCore() {
-        return Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_SCROFF_SINGLE_CORE);
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_SCROFF_SINGLE_CORE);
     }
 
     public static void activateMBHotplug(boolean active, Context context) {
-        Control.runCommand(active ? "1" : "0", MB_HOTPLUG_FILE + "/" + MB_ENABLED, Control.CommandType.GENERIC, context);
+        Control.runCommand(active ? "1" : "0", Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_ENABLED, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("MBHotplug", context);
     }
 
     public static boolean isMBHotplugActive() {
-        return Utils.readFile(MB_HOTPLUG_FILE + "/" + MB_ENABLED).equals("1");
+        return Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_ENABLED).equals("1");
     }
 
-    public static boolean hasMBGHotplugEnable() {
-        return Utils.existFile(MB_HOTPLUG_FILE + "/" + MB_ENABLED);
-    }
-
-    public static String getMBName(Context context) {
-        switch (MB_HOTPLUG_FILE) {
-            case MSM_MPDECISION_HOTPLUG:
-                return context.getString(R.string.msm_mpdecision_hotplug);
-            case BRICKED_HOTPLUG:
-                return context.getString(R.string.bricked_hotplug);
-            default:
-                return null;
-        }
+    public static boolean hasMBHotplugEnable() {
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_ENABLED);
     }
 
     public static boolean hasMBHotplug() {
-        if (Utils.existFile(MSM_MPDECISION_HOTPLUG)) MB_HOTPLUG_FILE = MSM_MPDECISION_HOTPLUG;
-        else if (Utils.existFile(BRICKED_HOTPLUG)) MB_HOTPLUG_FILE = BRICKED_HOTPLUG;
-        return MB_HOTPLUG_FILE != null;
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY));
+    }
+
+    public static boolean hasBrickedNWNS() {
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_NWNS + "_0");
+    }
+
+    public static String getBrickedNWNS(int num, String item, Context context) {
+        if (item != null) {
+            if ((num & 1) == 0) {
+                if (item.equals("title"))
+                    return String.format(context.getString(R.string.bricked_nwns), num / 2);
+                if (item.equals("description"))
+                    return String.format(context.getString(R.string.bricked_nwns_hotplug), num / 2);
+                if (item.equals("value") && Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_NWNS + "_" + num))
+                    return Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_NWNS + "_" + num);
+            } else {
+                if (item.equals("title"))
+                    return String.format(context.getString(R.string.bricked_nwns), (num - 1) / 2);
+                if (item.equals("description"))
+                    return String.format(context.getString(R.string.bricked_nwns_unplug), (num - 1) / 2);
+                if (item.equals("value") && Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_NWNS + "_" + num))
+                    return Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_NWNS + "_" + num);
+            }
+        }
+        return "error";
+    }
+
+    public static void setBrickedNWNS(int num, int value, Context context) {
+        if (Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_NWNS + "_" + num)) {
+            Control.runCommand(String.valueOf(value), Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_NWNS + "_" + num, Control.CommandType.GENERIC, context);
+        }
+    }
+
+    public static boolean hasBrickedTWTS() {
+        return Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_TWTS + "_0");
+    }
+
+    public static String getBrickedTWTS(int num, String item, Context context) {
+          if ( ( num & 1 ) == 0 ) {
+                if (item.equals("title")) return String.format(context.getString(R.string.bricked_twts), num / 2);
+                if (item.equals("description")) return String.format(context.getString(R.string.bricked_twts_hotplug), num / 2);
+                if (item.equals("value") && Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_TWTS + "_" + num)) return Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_TWTS + "_" + num);
+            }
+            else {
+                if (item.equals("title")) return String.format(context.getString(R.string.bricked_twts), (num - 1) / 2);
+                if (item.equals("description")) return String.format(context.getString(R.string.bricked_twts_unplug), (num - 1) / 2);
+                if (item.equals("value") && Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_TWTS + "_" + num)) return Utils.readFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_TWTS + "_" + num);
+            }
+            return "error";
+    }
+
+    public static void setBrickedTWTS(int num, int value, Context context) {
+        if (Utils.existFile(Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_TWTS + "_" + num)) {
+            Control.runCommand(String.valueOf(value), Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + BRICKED_TWTS + "_" + num, Control.CommandType.GENERIC, context);
+        }
     }
 
     public static void setMakoHotplugSuspendFreq(int value, Context context) {
@@ -693,6 +1035,7 @@ public class CPUHotplug implements Constants {
 
     public static void activateMakoHotplug(boolean active, Context context) {
         Control.runCommand(active ? "1" : "0", MAKO_HOTPLUG_ENABLED, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("MakoHotPlug", context);
     }
 
     public static boolean isMakoHotplugActive() {
@@ -914,6 +1257,7 @@ public class CPUHotplug implements Constants {
 
     public static void activateMsmHotplug(boolean active, Context context) {
         Control.runCommand(active ? "1" : "0", MSM_HOTPLUG_ENABLE_FILE, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("MSMHotPlug", context);
     }
 
     public static boolean isMsmHotplugActive() {
@@ -921,9 +1265,9 @@ public class CPUHotplug implements Constants {
     }
 
     public static boolean hasMsmHotplugEnable() {
-        if (Utils.existFile(HOTPLUG_MSM_ENABLE)) MSM_HOTPLUG_ENABLE_FILE = HOTPLUG_MSM_ENABLE;
-        else if (Utils.existFile(HOTPLUG_MSM_ENABLE_2))
-            MSM_HOTPLUG_ENABLE_FILE = HOTPLUG_MSM_ENABLE_2;
+        if (Utils.existFile(Utils.getsysfspath(HOTPLUG_MSM_ENABLE_ARRAY))) {
+            MSM_HOTPLUG_ENABLE_FILE = Utils.getsysfspath(HOTPLUG_MSM_ENABLE_ARRAY);
+        }
         return MSM_HOTPLUG_ENABLE_FILE != null;
     }
 
@@ -1032,6 +1376,7 @@ public class CPUHotplug implements Constants {
 
     public static void activateBluPlug(boolean active, Context context) {
         Control.runCommand(active ? "1" : "0", HOTPLUG_BLU_PLUG_ENABLE, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("BluPlug", context);
     }
 
     public static boolean isBluPlugActive() {
@@ -1303,21 +1648,16 @@ public class CPUHotplug implements Constants {
     }
 
     public static void activateIntelliPlug(boolean active, Context context) {
-        String file = HOTPLUG_INTELLI_PLUG_ENABLE;
-        if (TYPE == INTELLIPLUG_TYPE.INTELLIPLUG_5) file = HOTPLUG_INTELLI_PLUG_5_ENABLE;
-        Control.runCommand(active ? "1" : "0", file, Control.CommandType.GENERIC, context);
+        Control.runCommand(active ? "1" : "0", Utils.getsysfspath(INTELLIPLUG_ARRAY) + HOTPLUG_INTELLI_PLUG_ENABLE, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("IntelliPlug", context);
     }
 
     public static boolean isIntelliPlugActive() {
-        String file = HOTPLUG_INTELLI_PLUG_ENABLE;
-        if (TYPE == INTELLIPLUG_TYPE.INTELLIPLUG_5) file = HOTPLUG_INTELLI_PLUG_5_ENABLE;
-        return Utils.readFile(file).equals("1");
+        return Utils.readFile(Utils.getsysfspath(INTELLIPLUG_ARRAY) + HOTPLUG_INTELLI_PLUG_ENABLE).equals("1");
     }
 
     public static boolean hasIntelliPlugEnable() {
-        String file = HOTPLUG_INTELLI_PLUG_ENABLE;
-        if (TYPE == INTELLIPLUG_TYPE.INTELLIPLUG_5) file = HOTPLUG_INTELLI_PLUG_5_ENABLE;
-        return Utils.existFile(file);
+        return Utils.existFile(Utils.getsysfspath(INTELLIPLUG_ARRAY) + HOTPLUG_INTELLI_PLUG_ENABLE);
     }
 
     public static boolean hasIntelliPlug() {
@@ -1328,7 +1668,10 @@ public class CPUHotplug implements Constants {
     }
 
     public static void activateMpdecision(boolean active, Context context) {
-        if (active) Control.startService(HOTPLUG_MPDEC, context);
+        if (active) {
+            Control.startService(HOTPLUG_MPDEC, context);
+            togglehotplugs("MPDecision", context);
+        }
         else {
             Control.stopService(HOTPLUG_MPDEC, context);
             CPU.onlineAllCores(context);
@@ -1336,9 +1679,17 @@ public class CPUHotplug implements Constants {
     }
 
     public static boolean isMpdecisionActive() {
-        return Utils.isPropActive(HOTPLUG_MPDEC);
+        // Doing this here instead of the utils.ispropactive function because it can show either of these statuses
+        try {
+            String result = RootUtils.runCommand("getprop | grep " + HOTPLUG_MPDEC).split("]: ")[1];
+            if (result.equals("[running]") || result.equals("[restarting]")) {
+                return true;
+            }
+        } catch (Exception ignored) {
+            return false;
+        }
+        return false;
     }
-
     public static boolean hasMpdecision() {
         return Utils.hasProp(HOTPLUG_MPDEC);
     }
@@ -1348,6 +1699,221 @@ public class CPUHotplug implements Constants {
         for (String[] array : CPU_HOTPLUG_ARRAY)
             for (String file : array) if (Utils.existFile(file)) return true;
         return false;
+    }
+
+    public static void togglehotplugs (String activehotplug, Context context){
+        if (CPUHotplug.isMpdecisionActive() && !activehotplug.equals("MPDecision") ) {
+            if (isMpdecisionActive()) {
+                Control.stopService(HOTPLUG_MPDEC, context);
+                CPU.onlineAllCores(context);
+            }
+        }
+        if (CPUHotplug.isAutoSmpActive() && hasAutoSmpEnable() && !activehotplug.equals("AutoSMP") ) Control.runCommand("N", HOTPLUG_AUTOSMP_ENABLE, Control.CommandType.GENERIC, context);
+        if (CPUHotplug.isThunderPlugActive() && hasThunderPlugEnable() && !activehotplug.equals("ThunderPlug")) Control.runCommand("0", HOTPLUG_THUNDER_PLUG_ENABLE, Control.CommandType.GENERIC, context);
+        if (CPUHotplug.isAlucardHotplugActive() && hasAlucardHotplugEnable() && !activehotplug.equals("AlucardHotplug")) Control.runCommand("0", ALUCARD_HOTPLUG_ENABLE, Control.CommandType.GENERIC, context);
+        if (CPUHotplug.isMakoHotplugActive() && hasMakoHotplugEnable() && !activehotplug.equals("MakoHotPlug")) Control.runCommand("0", MAKO_HOTPLUG_ENABLED, Control.CommandType.GENERIC, context);
+        if (CPUHotplug.isBluPlugActive() && CPUHotplug.hasBluPlugEnable() && !activehotplug.equals("BluPlug")) Control.runCommand("0", HOTPLUG_BLU_PLUG_ENABLE, Control.CommandType.GENERIC, context);
+        if (CPUHotplug.isIntelliPlugActive() && hasIntelliPlugEnable() && !activehotplug.equals("IntelliPlug")) {
+            if (Utils.existFile(HOTPLUG_INTELLI_PLUG_ENABLE)) Control.runCommand("0", HOTPLUG_INTELLI_PLUG_ENABLE, Control.CommandType.GENERIC, context);
+            if (Utils.existFile(HOTPLUG_INTELLI_PLUG_5_ENABLE)) Control.runCommand("0", HOTPLUG_INTELLI_PLUG_5_ENABLE, Control.CommandType.GENERIC, context);
+        }
+        if (CPUHotplug.isZenDecisionActive() && hasZenDecisionEnable() && !activehotplug.equals("ZenDecision")) Control.runCommand("0", HOTPLUG_ZEN_DECISION_ENABLE, Control.CommandType.GENERIC, context);
+        if (CPUHotplug.isMSMSleeperActive() && hasMSMSleeperEnable() && !activehotplug.equals("MSM_Sleeper")) Control.runCommand("0", MSM_SLEEPER_ENABLE, Control.CommandType.GENERIC, context);
+        if (CPUHotplug.isMBHotplugActive() && hasMBHotplugEnable() && !activehotplug.equals("MBHotplug")) Control.runCommand("0", Utils.getsysfspath(MB_HOTPLUG_ARRAY) + "/" + MB_ENABLED, Control.CommandType.GENERIC, context);
+        if (CPUHotplug.isMsmHotplugActive() && hasMsmHotplugEnable() && !activehotplug.equals("MSMHotPlug")) Control.runCommand("0", MSM_HOTPLUG_ENABLE_FILE, Control.CommandType.GENERIC, context);
+        if (CPUHotplug.isStateHelperActive() && hasStateHelperEnable() && !activehotplug.equals("State_Helper")) Control.runCommand("0", STATE_HELPER_ENABLE, Control.CommandType.GENERIC, context);
+        if (CPUHotplug.isLazyPlugActive() && hasLazyPlugEnable() && !activehotplug.equals("LazyPlug")) Control.runCommand("0", HOTPLUG_LAZYPLUG_TOUCH_BOOST_ACTIVE, Control.CommandType.GENERIC, context);
+        if (CPUHotplug.isDynPlugActive() && hasDynPlugEnable() && !activehotplug.equals("DynPlug")) Control.runCommand("N", HOTPLUG_DYN_PLUG_ENABLE, Control.CommandType.GENERIC, context);
+        if (CPUHotplug.isAutoHotplugActive() && hasAutoHotplugEnable() && !activehotplug.equals("AutoHotplug")) Control.runCommand("N", HOTPLUG_AUTO_HOTPLUG_ENABLE, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean hasMSMSleeper () {
+        return Utils.existFile(MSM_SLEEPER);
+    }
+
+    public static boolean hasMSMSleeperEnable () {
+        return Utils.existFile(MSM_SLEEPER_ENABLE);
+    }
+
+    public static void activateMSMSleeper (boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", MSM_SLEEPER_ENABLE, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("MSM_Sleeper", context);
+    }
+
+    public static boolean isMSMSleeperActive () {
+        return Utils.readFile(MSM_SLEEPER_ENABLE).equals("1");
+    }
+
+    public static void setMSMSleeperMaxOnline(int value, Context context) {
+        Control.runCommand(String.valueOf(value), MSM_SLEEPER_MAX_ONLINE, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getMSMSleeperMaxOnline() {
+        return Utils.stringToInt(Utils.readFile(MSM_SLEEPER_MAX_ONLINE));
+    }
+
+    public static boolean hasMSMSleeperMaxOnline() {
+        return Utils.existFile(MSM_SLEEPER_MAX_ONLINE);
+    }
+
+    public static void setMSMSleeperSuspendMaxOnline(int value, Context context) {
+        Control.runCommand(String.valueOf(value), MSM_SLEEPER_SUSPEND_MAX_ONLINE, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getMSMSleeperSuspendMaxOnline() {
+        return Utils.stringToInt(Utils.readFile(MSM_SLEEPER_SUSPEND_MAX_ONLINE));
+    }
+
+    public static boolean hasMSMSleeperSuspendMaxOnline() {
+        return Utils.existFile(MSM_SLEEPER_SUSPEND_MAX_ONLINE);
+    }
+
+    public static void setMSMSleeperUpThresh(int value, Context context) {
+        Control.runCommand(String.valueOf(value), MSM_SLEEPER_UP_THRESHOLD, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getMSMSleeperUpThresh() {
+        return Utils.stringToInt(Utils.readFile(MSM_SLEEPER_UP_THRESHOLD));
+    }
+
+    public static boolean hasMSMSleeperUpThresh() {
+        return Utils.existFile(MSM_SLEEPER_UP_THRESHOLD);
+    }
+
+    public static void setMSMSleeperUpCountMax(int value, Context context) {
+        Control.runCommand(String.valueOf(value), MSM_SLEEPER_UP_COUNT_MAX, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getMSMSleeperUpCountMax() {
+        return Utils.stringToInt(Utils.readFile(MSM_SLEEPER_UP_COUNT_MAX));
+    }
+
+    public static boolean hasMSMSleeperUpCountMax() {
+        return Utils.existFile(MSM_SLEEPER_UP_COUNT_MAX);
+    }
+
+    public static void setMSMSleeperDownCountMax(int value, Context context) {
+        Control.runCommand(String.valueOf(value), MSM_SLEEPER_DOWN_COUNT_MAX, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getMSMSleeperDownCountMax() {
+        return Utils.stringToInt(Utils.readFile(MSM_SLEEPER_DOWN_COUNT_MAX));
+    }
+
+    public static boolean hasMSMSleeperDownCountMax() {
+        return Utils.existFile(MSM_SLEEPER_DOWN_COUNT_MAX);
+    }
+
+    public static boolean hasStateHelper () {
+        return Utils.existFile(STATE_HELPER);
+    }
+
+    public static boolean hasStateHelperEnable () {
+        return Utils.existFile(STATE_HELPER_ENABLE);
+    }
+
+    public static boolean isStateHelperActive () {
+        return Utils.readFile(STATE_HELPER_ENABLE).equals("1");
+    }
+
+    public static void activateStateHelper (boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", STATE_HELPER_ENABLE, Control.CommandType.GENERIC, context);
+        if (active) togglehotplugs("State_Helper", context);
+    }
+
+    public static void setStateHelperMaxCpusOnline(int value, Context context) {
+        Control.runCommand(String.valueOf(value), STATE_HELPER_MAX_CPUS_ONLINE, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getStateHelperMaxCpusOnline() {
+        return Utils.stringToInt(Utils.readFile(STATE_HELPER_MAX_CPUS_ONLINE));
+    }
+
+    public static boolean hasStateHelperMaxCpusOnline() {
+        return Utils.existFile(STATE_HELPER_MAX_CPUS_ONLINE);
+    }
+
+    public static void setStateHelperMaxCpusSuspend(int value, Context context) {
+        Control.runCommand(String.valueOf(value), STATE_HELPER_MAX_CPUS_SUSPEND, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getStateHelperMaxCpusSuspend() {
+        return Utils.stringToInt(Utils.readFile(STATE_HELPER_MAX_CPUS_SUSPEND));
+    }
+
+    public static boolean hasStateHelperMaxCpusSuspend() {
+        return Utils.existFile(STATE_HELPER_MAX_CPUS_SUSPEND);
+    }
+
+    public static boolean hasStateHelperBattLevelEco () {
+        return Utils.existFile(STATE_HELPER_BATT_LEVEL_ECO);
+    }
+
+    public static int getStateHelperBattLevelEco() {
+        return Utils.stringToInt(Utils.readFile(STATE_HELPER_BATT_LEVEL_ECO));
+    }
+
+    public static void setStateHelperBattLevelEco(int value, Context context) {
+        Control.runCommand(String.valueOf(value), STATE_HELPER_BATT_LEVEL_ECO, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean hasStateHelperBattLevelCri () {
+        return Utils.existFile(STATE_HELPER_BATT_LEVEL_CRI);
+    }
+
+    public static int getStateHelperBattLevelCri() {
+        return Utils.stringToInt(Utils.readFile(STATE_HELPER_BATT_LEVEL_CRI));
+    }
+
+    public static void setStateHelperBattLevelCri(int value, Context context) {
+        Control.runCommand(String.valueOf(value), STATE_HELPER_BATT_LEVEL_CRI, Control.CommandType.GENERIC, context);
+    }
+
+    public static void setStateHelperMaxCpusEco(int value, Context context) {
+        Control.runCommand(String.valueOf(value), STATE_HELPER_MAX_CPU_ECO, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getStateHelperMaxCpusEco() {
+        return Utils.stringToInt(Utils.readFile(STATE_HELPER_MAX_CPU_ECO));
+    }
+
+    public static boolean hasStateHelperMaxCpusEco() {
+        return Utils.existFile(STATE_HELPER_MAX_CPU_ECO);
+    }
+
+    public static void setStateHelperMaxCpusCri(int value, Context context) {
+        Control.runCommand(String.valueOf(value), STATE_HELPER_MAX_CPU_CRI, Control.CommandType.GENERIC, context);
+    }
+
+    public static int getStateHelperMaxCpusCri() {
+        return Utils.stringToInt(Utils.readFile(STATE_HELPER_MAX_CPU_CRI));
+    }
+
+    public static boolean hasStateHelperMaxCpusCri() {
+        return Utils.existFile(STATE_HELPER_MAX_CPU_CRI);
+    }
+
+    public static void activatebch(boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", BCH, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isbchActive() {
+        return Utils.readFile(BCH).equals("1");
+    }
+    public static boolean hasbch() {
+        return Utils.existFile(BCH);
+    }
+
+    public static boolean hasmsmperformance() {
+        return Utils.existFile(MSMPERFORMANCE);
+    }
+
+    public static int getmsmperformance() {
+        return Utils.stringToInt(Utils.readFile(MSMPERFORMANCE));
+    }
+
+    public static void setmsmperformance(int value, Context context) {
+        Control.runCommand(Integer.toString(value), MSMPERFORMANCE, Control.CommandType.GENERIC, context);
     }
 
 }

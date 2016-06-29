@@ -30,6 +30,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.MainThread;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -55,6 +56,7 @@ import com.grarak.kerneladiutor.fragments.kernel.SoundFragment;
 import com.grarak.kerneladiutor.fragments.kernel.ThermalFragment;
 import com.grarak.kerneladiutor.fragments.kernel.VMFragment;
 import com.grarak.kerneladiutor.fragments.kernel.WakeFragment;
+import com.grarak.kerneladiutor.fragments.kernel.WakeLockFragment;
 import com.grarak.kerneladiutor.utils.kernel.CPU;
 import com.kerneladiutor.library.Tools;
 import com.kerneladiutor.library.root.RootUtils;
@@ -344,7 +346,7 @@ public class Utils implements Constants {
             applys.addAll(new ArrayList<>(Arrays.asList(BATTERY_ARRAY)));
         else if (mClass == CPUFragment.class) {
             for (String cpu : CPU_ARRAY)
-                if (cpu.startsWith("/sys/devices/system/cpu/cpu%d"))
+                if (cpu.contains("%d"))
                     for (int i = 0; i < CPU.getCoreCount(); i++)
                         applys.add(String.format(cpu, i));
                 else applys.add(cpu);
@@ -361,12 +363,9 @@ public class Utils implements Constants {
         else if (mClass == KSMFragment.class)
             applys.addAll(new ArrayList<>(Arrays.asList(KSM_ARRAY)));
         else if (mClass == LMKFragment.class) applys.add(LMK_MINFREE);
-        else if (mClass == MiscFragment.class) {
-            for (Object[] arrays : MISC_ARRAY)
-                for (Object path : arrays)
-                    if (path instanceof String)
-                        applys.add((String) path);
-        } else if (mClass == ScreenFragment.class) for (String[] arrays : SCREEN_ARRAY)
+        else if (mClass == MiscFragment.class) for (String[] arrays : MISC_ARRAY)
+             applys.addAll(new ArrayList<>(Arrays.asList(arrays)));
+        else if (mClass == ScreenFragment.class) for (String[] arrays : SCREEN_ARRAY)
             applys.addAll(new ArrayList<>(Arrays.asList(arrays)));
         else if (mClass == SoundFragment.class) for (String[] arrays : SOUND_ARRAY)
             applys.addAll(new ArrayList<>(Arrays.asList(arrays)));
@@ -375,6 +374,8 @@ public class Utils implements Constants {
         else if (mClass == VMFragment.class)
             applys.addAll(new ArrayList<>(Arrays.asList(VM_ARRAY)));
         else if (mClass == WakeFragment.class) for (String[] arrays : WAKE_ARRAY)
+            applys.addAll(new ArrayList<>(Arrays.asList(arrays)));
+        else if (mClass == WakeLockFragment.class) for (String[] arrays : WAKELOCK_ARRAY)
             applys.addAll(new ArrayList<>(Arrays.asList(arrays)));
 
         return applys;
@@ -444,10 +445,12 @@ public class Utils implements Constants {
                 Configuration.ORIENTATION_PORTRAIT : Configuration.ORIENTATION_LANDSCAPE;
     }
 
+    @MainThread
     public static void toast(String message, Context context) {
         toast(message, context, Toast.LENGTH_SHORT);
     }
 
+    @MainThread
     public static void toast(String message, Context context, int duration) {
         Toast.makeText(context, message, duration).show();
     }
@@ -461,7 +464,11 @@ public class Utils implements Constants {
     }
 
     public static boolean getBoolean(String name, boolean defaults, Context context) {
-        return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).getBoolean(name, defaults);
+        try {
+            return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).getBoolean(name, defaults);
+        } catch (Exception ignored){
+            return false;
+        }
     }
 
     public static void saveBoolean(String name, boolean value, Context context) {
@@ -508,4 +515,47 @@ public class Utils implements Constants {
         return Tools.readFile(file, true);
     }
 
+    public static double stringtodouble (String text) {
+        try {
+            return Double.parseDouble(text);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    public static boolean isLetter (String testchar) {
+        if (Character.isLetter(testchar.charAt(0))) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean is64bit() {
+        if (Build.VERSION.SDK_INT < 21) {
+            return false;
+        }
+        else if (Build.SUPPORTED_64_BIT_ABIS.length >= 1) {
+                return true;
+        }
+        return false;
+    }
+
+    public static String getsysfspath(String[] paths) {
+        for (int i = 0; i < paths.length; i++) {
+            if (Utils.existFile(paths[i])) {
+                return paths[i];
+            }
+        }
+        return null;
+    }
+
+    //Helper function to get paths with integer format substitutions
+    public static String getsysfspath(String[] paths, int sub) {
+        for (int i = 0; i < paths.length; i++) {
+            if (Utils.existFile(String.format(paths[i], sub))){
+                return String.format(paths[i], sub);
+            }
+        }
+        return null;
+    }
 }

@@ -35,39 +35,53 @@ import java.util.List;
 public class Control implements Constants {
 
     public enum CommandType {
-        GENERIC, CPU, CPU_LITTLE, FAUX_GENERIC, CUSTOM
+        GENERIC, CPU, CPU_LITTLE, FAUX_GENERIC, CUSTOM, SHELL
     }
 
     public static void commandSaver(final Context context, final String path, final String command) {
         CommandDB commandDB = new CommandDB(context);
-
-        List<CommandDB.CommandItem> commandItems = commandDB.getAllCommands();
-        for (int i = 0; i < commandItems.size(); i++) {
-            String p = commandItems.get(i).getPath();
-            if (p != null && p.equals(path))
-                commandDB.delete(i);
+        // Something keeps trying to save commands wtih a null path... This makes the bootservice Force Close.
+        // Ensure that this isn't a possibility by not saving null paths or commands.
+        if (path != null && command != null && !path.equals("null") && !command.equals("null")) {
+            List<CommandDB.CommandItem> commandItems = commandDB.getAllCommands();
+            for (int i = 0; i < commandItems.size(); i++) {
+                String p = commandItems.get(i).getPath();
+                if (p != null && p.equals(path)) {
+                    commandDB.delete(i);
+                }
+            }
+            commandDB.putCommand(path, command);
+            commandDB.commit();
+        } else {
+            Log.i(TAG, "Unable to save command due to null values.");
         }
-
-        commandDB.putCommand(path, command);
-        commandDB.commit();
     }
 
     private static void run(String command, String path, Context context) {
-        RootUtils.runCommand(command);
-        commandSaver(context, path, command);
-        Log.i(TAG, "Run command: " + command);
+        if (path != null && command != null && !path.equals("null") && !command.equals("null")) {
+            RootUtils.runCommand(command);
+            commandSaver(context, path, command);
+            Log.i(TAG, "Run command: " + command);
+        }
+        else {
+            Log.i(TAG, "Unable to run command due to null values.");
+        }
     }
 
     private static int getChecksum(int arg1, int arg2) {
         return 255 & (Integer.MAX_VALUE ^ (arg1 & 255) + (arg2 & 255));
     }
 
-    private static void setPermission(String file, int permission, Context context) {
+    public static void setPermission(String file, int permission, Context context) {
         run("chmod " + permission + " " + file, file + "permission" + permission, context);
     }
 
     private static void runGeneric(String file, String value, String id, Context context) {
         run("echo " + value + " > " + file, id != null ? file + id : file, context);
+    }
+
+    private static void runShell(String value, String command, Context context) {
+        run(command + " " + value, command, context);
     }
 
     private static void runFauxGeneric(String file, String value, Context context) {
@@ -124,6 +138,8 @@ public class Control implements Constants {
                     runFauxGeneric(file, value, context);
                 } else if (command == CommandType.CUSTOM) {
                     Control.run(value, id == null ? file : file + id, context);
+                } else if (command == CommandType.SHELL) {
+                    runShell(value, file, context);
                 }
             }
         });
@@ -148,6 +164,27 @@ public class Control implements Constants {
 
     public static void runCommand(final String value, final String file, final CommandType command, final Context context) {
         runCommand(value, file, command, null, context);
+    }
+
+    public static void deletespecificcommand(final Context context, final String path, final String command) {
+        CommandDB commandDB = new CommandDB(context);
+
+        List<CommandDB.CommandItem> commandItems = commandDB.getAllCommands();
+        if (path == null && command == null) {
+           for (int i = 0; i <= commandItems.size(); i++) {
+              commandDB.delete(0);
+            }
+        }
+        else {
+            for (int i = 0; i < commandItems.size(); i++) {
+                String p = commandItems.get(i).getPath();
+                String c = commandItems.get(i).getCommand();
+                if (p != null && p.equals(path) || c.equals(command)) {
+                    commandDB.delete(i);
+                }
+            }
+        }
+        commandDB.commit();
     }
 
 }

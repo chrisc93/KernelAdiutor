@@ -1,14 +1,10 @@
 # KernelAdiutor
 
-[![Build Status](https://travis-ci.org/Grarak/KernelAdiutor.svg?branch=master)](https://travis-ci.org/Grarak/KernelAdiutor)
-[![Crowdin](https://d322cqt584bo4o.cloudfront.net/kernel-adiutor/localized.png)](https://crowdin.com/project/kernel-adiutor)
+[![Build Status](https://travis-ci.org/yoinx/kernel_adiutor.svg?branch=master)](https://travis-ci.org/yoinx/kernel_adiutor)
 
 ![Screenshot](https://raw.githubusercontent.com/Grarak/KernelAdiutor/master/screenshots/screenshot.png)
 
-* [Join Google+ Community](https://plus.google.com/communities/108445529270785762340) (Beta Testing)
-
-[![Google Play](http://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=com.grarak.kerneladiutor)
-[![PayPal](https://www.paypalobjects.com/webstatic/mktg/Logo/pp-logo-200px.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=G3643L52LJQ7G)
+* [Join Google+ Community](https://plus.google.com/communities/103764146519204710337)
 
 ## Kernel Downloader
 
@@ -16,7 +12,7 @@ This is a feature which allows the user to download different custom kernels for
 
 ## Report a bug or request a feature
 
-You can report a bug or request a feature by [opening an issue](https://github.com/Grarak/KernelAdiutor/issues/new).
+You can report a bug or request a feature by [opening an issue](https://github.com/yoinx/kernel_adiutor/issues/new).
 
 #### How to report a bug
 * A detailed description of the bug
@@ -36,7 +32,7 @@ You can report a bug or request a feature by [opening an issue](https://github.c
 Clone the project and come in:
 
 ``` bash
-$ git clone git://github.com/Grarak/KernelAdiutor.git
+$ git clone git://github.com/yoinx/kernel_adiutor.git
 $ cd KernelAdiutor
 $ ./gradlew build
 ```

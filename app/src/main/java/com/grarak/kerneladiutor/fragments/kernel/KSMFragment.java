@@ -38,14 +38,14 @@ public class KSMFragment extends RecyclerViewFragment implements SwitchCardView.
 
     private SwitchCardView.DSwitchCard mEnableKsmCard, mDeferredTimerCard;
 
-    private SeekBarCardView.DSeekBarCard mPagesToScanCard, mSleepMillisecondsCard;
+    private SeekBarCardView.DSeekBarCard mPagesToScanCard, mSleepMillisecondsCard, mCpuUseCard;
 
     @Override
     public void init(Bundle savedInstanceState) {
         super.init(savedInstanceState);
 
-        ksmInfoInit();
         ksmInit();
+        ksmInfoInit();
     }
 
     private void ksmInfoInit() {
@@ -103,6 +103,19 @@ public class KSMFragment extends RecyclerViewFragment implements SwitchCardView.
             addView(mSleepMillisecondsCard);
         }
 
+        if (KSM.hasCpuUse()) {
+            List<String> list = new ArrayList<>();
+            for (int i = 0; i < 101; i++) list.add(i + getString(R.string.percent));
+
+            mCpuUseCard = new SeekBarCardView.DSeekBarCard(list);
+            mCpuUseCard.setTitle(getString(R.string.uksm_cpu_use));
+            mCpuUseCard.setDescription(getString(R.string.uksm_cpu_use_summary));
+            mCpuUseCard.setProgress(KSM.getCpuUse());
+            mCpuUseCard.setOnDSeekBarCardListener(this);
+
+            addView(mCpuUseCard);
+        }
+
     }
 
     @Override
@@ -121,6 +134,8 @@ public class KSMFragment extends RecyclerViewFragment implements SwitchCardView.
         if (dSeekBarCard == mPagesToScanCard) KSM.setPagesToScan(position, getActivity());
         else if (dSeekBarCard == mSleepMillisecondsCard)
             KSM.setSleepMilliseconds(position, getActivity());
+        else if (dSeekBarCard == mCpuUseCard)
+            KSM.setCpuUse(position, getActivity());
     }
 
     @Override

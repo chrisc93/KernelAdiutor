@@ -24,6 +24,7 @@ import com.grarak.kerneladiutor.utils.root.Control;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -66,7 +67,7 @@ public class IO implements Constants {
 
                 for (int i = 0; i < valueArray.length; i++)
                     out[i] = valueArray[i].replace("[", "").replace("]", "");
-
+                Collections.sort(Arrays.asList(out), String.CASE_INSENSITIVE_ORDER);
                 return new ArrayList<>(Arrays.asList(out));
             }
         }
@@ -92,6 +93,55 @@ public class IO implements Constants {
     public static boolean hasExternalStorage() {
         return Utils.existFile(IO_EXTERNAL_READ_AHEAD)
                 || Utils.existFile(IO_EXTERNAL_SCHEDULER);
+    }
+
+     public static void activaterotational (boolean active, Context context) {
+         Control.runCommand(active ? "1" : "0", IO_ROTATIONAL, Control.CommandType.GENERIC, context);
+     }
+
+     public static boolean isRotationalActive() {
+        return Utils.readFile(IO_ROTATIONAL).equals("1");
+     }
+
+     public static boolean hasRotational () {
+        return Utils.existFile(IO_ROTATIONAL);
+     }
+
+    public static void activateIORandom (boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", IO_RANDOM, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isIORandomActive() {
+        return Utils.readFile(IO_RANDOM).equals("1");
+    }
+
+    public static boolean hasIORandom () {
+        return Utils.existFile(IO_RANDOM);
+    }
+
+    public static void activateIOstats (boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", IO_STATS, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isIOStatsActive() {
+        return Utils.readFile(IO_STATS).equals("1");
+    }
+
+    public static boolean hasIOStats () {
+        return Utils.existFile(IO_STATS);
+    }
+
+    public static boolean hasIOAffinity() {
+        return Utils.existFile(IO_AFFINITY);
+    }
+
+    public static int getIOAffinity () {
+        String value = Utils.readFile(IO_AFFINITY);
+        return Utils.stringToInt(value);
+    }
+
+    public static void setIOAffinity(int value, Context context) {
+        Control.runCommand(String.valueOf(value), IO_AFFINITY, Control.CommandType.GENERIC, context);
     }
 
 }

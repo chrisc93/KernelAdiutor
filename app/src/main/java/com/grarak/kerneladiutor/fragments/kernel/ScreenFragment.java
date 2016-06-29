@@ -17,7 +17,12 @@
 package com.grarak.kerneladiutor.fragments.kernel;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -34,6 +39,7 @@ import com.grarak.kerneladiutor.elements.cards.PopupCardView;
 import com.grarak.kerneladiutor.elements.cards.SeekBarCardView;
 import com.grarak.kerneladiutor.elements.cards.SwitchCardView;
 import com.grarak.kerneladiutor.fragments.RecyclerViewFragment;
+import com.grarak.kerneladiutor.services.AutoHighBrightnessModeService;
 import com.grarak.kerneladiutor.utils.Constants;
 import com.grarak.kerneladiutor.utils.Utils;
 import com.grarak.kerneladiutor.utils.WebpageReader;
@@ -62,13 +68,15 @@ public class ScreenFragment extends RecyclerViewFragment implements SeekBarCardV
     private SeekBarCardView.DSeekBarCard mScreenHueCard;
     private SeekBarCardView.DSeekBarCard mScreenValueCard;
     private SeekBarCardView.DSeekBarCard mScreenContrastCard;
-    private SwitchCardView.DSwitchCard mScreenHBMCard;
     private SwitchCardView.DSwitchCard mScreenColorTempEnableCard;
+    private SeekBarCardView.DSeekBarCard mScreenAutoHBMValueCard, mScreenAutoHBMSmoothingSamplesCard;
+    private SwitchCardView.DSwitchCard mScreenAutoHBMCard, mScreenHBMCard, mScreenAutoHBMSmoothingCard, mScreenHBMLockCard;
 
     private EditTextCardView.DEditTextCard mKGammaBlueCard;
     private EditTextCardView.DEditTextCard mKGammaGreenCard;
     private EditTextCardView.DEditTextCard mKGammaRedCard;
     private PopupCardView.DPopupCard mKGammaProfilesCard;
+    private PopupCardView.DPopupCard mScreenColorProilesCard;
 
     private EditTextCardView.DEditTextCard mGammaControlRedGreysCard;
     private EditTextCardView.DEditTextCard mGammaControlRedMidsCard;
@@ -129,7 +137,9 @@ public class ScreenFragment extends RecyclerViewFragment implements SeekBarCardV
         super.init(savedInstanceState);
 
         screenColorInit();
-        if (Screen.hasKGamma()) kgammaInit();
+        if (!Screen.hasGammaControl()) {
+            if (Screen.hasKGamma()) kgammaInit();
+        }
         if (Screen.hasGammaControl()) gammacontrolInit();
         if (Screen.hasDsiPanel()) dsipanelInit();
         if (mKGammaProfilesCard != null || mGammaControlProfilesCard != null || mDsiPanelProfilesCard != null)
@@ -150,6 +160,24 @@ public class ScreenFragment extends RecyclerViewFragment implements SeekBarCardV
     }
 
     private void screenColorInit() {
+
+        GammaProfiles.ScreenColorProfiles screenColorProfiles = Screen.getScreenColorProfiles(getActivity());
+        if (screenColorProfiles != null) {
+            List<String> list = new ArrayList<>();
+            list.add("Custom");
+            for (int i = 0; i < screenColorProfiles.length(); i++)
+                list.add(screenColorProfiles.getName(i));
+
+            mScreenColorProilesCard = new PopupCardView.DPopupCard(list);
+            mScreenColorProilesCard.setTitle(getString(R.string.screen_color_profile));
+            mScreenColorProilesCard.setDescription(getString(R.string.screen_color_profile_summary));
+            mScreenColorProilesCard.setItem(Screen.getCurrentColorProfile(getActivity()));
+            mScreenColorProilesCard.setOnDPopupCardListener(this);
+
+            addView(mScreenColorProilesCard);
+        }
+
+
         if (Screen.hasColorCalibration()) {
             List<String> colors = Screen.getColorCalibration();
             mColorCalibrationLimits = Screen.getColorCalibrationLimits();
@@ -245,6 +273,60 @@ public class ScreenFragment extends RecyclerViewFragment implements SeekBarCardV
         }
 
         if (Screen.hasScreenHBM()) {
+
+            mScreenAutoHBMCard = new SwitchCardView.DSwitchCard();
+            mScreenAutoHBMCard.setDescription(getString(R.string.auto_high_brightness_mode));
+            mScreenAutoHBMCard.setChecked(Screen.isScreenAutoHBMActive(view.getContext()));
+            mScreenAutoHBMCard.setOnDSwitchCardListener(this);
+
+            addView(mScreenAutoHBMCard);
+
+            if (Screen.isScreenAutoHBMActive(view.getContext())) {
+
+                mScreenAutoHBMSmoothingCard = new SwitchCardView.DSwitchCard();
+                mScreenAutoHBMSmoothingCard.setDescription(getString(R.string.auto_high_brightness_smoothing));
+                mScreenAutoHBMSmoothingCard.setChecked(Screen.isScreenAutoHBMSmoothingActive(view.getContext()));
+                mScreenAutoHBMSmoothingCard.setOnDSwitchCardListener(this);
+
+                addView(mScreenAutoHBMSmoothingCard);
+
+                if (Screen.isScreenAutoHBMSmoothingActive(view.getContext())) {
+                    List<String> list = new ArrayList<>();
+                    for (int i = 3; i < 11; i++)
+                        list.add(String.valueOf(i));
+
+                    mScreenAutoHBMSmoothingSamplesCard = new SeekBarCardView.DSeekBarCard(list);
+                    mScreenAutoHBMSmoothingSamplesCard.setTitle(getString(R.string.auto_high_brightness_smoothing_samples));
+                    mScreenAutoHBMSmoothingSamplesCard.setDescription("Number of Samples: " + Screen.getAutoHBMSmoothingSamples(view.getContext()));
+                    mScreenAutoHBMSmoothingSamplesCard.setProgress(Screen.getAutoHBMSmoothingSamples(view.getContext()) -3 );
+                    mScreenAutoHBMSmoothingSamplesCard.setOnDSeekBarCardListener(this);
+
+                    addView(mScreenAutoHBMSmoothingSamplesCard);
+                }
+
+                mScreenHBMLockCard = new SwitchCardView.DSwitchCard();
+                mScreenHBMLockCard.setTitle(getString(R.string.hbm_lock));
+                mScreenHBMLockCard.setDescription(getString(R.string.hbm_lock_summary));
+                mScreenHBMLockCard.setChecked(Screen.isScreenHBMLockActive(view.getContext()));
+                mScreenHBMLockCard.setOnDSwitchCardListener(this);
+
+                addView(mScreenHBMLockCard);
+
+                List<String> list = new ArrayList<>();
+                for (int i = 0; i <= 10000; i+=5)
+                    list.add(String.valueOf(i));
+
+                mScreenAutoHBMValueCard = new SeekBarCardView.DSeekBarCard(list);
+                mScreenAutoHBMValueCard.setTitle(getString(R.string.auto_high_brightness_mode_threshold));
+                mScreenAutoHBMValueCard.setDescription("Current Lux Value: " + AutoHighBrightnessModeService.lux);
+                mScreenAutoHBMValueCard.setProgress(Screen.getAutoHBMThresh(view.getContext()) / 5);
+                mScreenAutoHBMValueCard.setOnDSeekBarCardListener(this);
+
+                addView(mScreenAutoHBMValueCard);
+
+            }
+
+
             mScreenHBMCard = new SwitchCardView.DSwitchCard();
             mScreenHBMCard.setDescription(getString(R.string.high_brightness_mode));
             mScreenHBMCard.setChecked(Screen.isScreenHBMActive());
@@ -768,6 +850,12 @@ public class ScreenFragment extends RecyclerViewFragment implements SeekBarCardV
             Screen.setScreenValue(position + 128, getActivity());
         else if (dSeekBarCard == mScreenContrastCard)
             Screen.setScreenContrast(position + 128, getActivity());
+        else if (dSeekBarCard == mScreenAutoHBMSmoothingSamplesCard) {
+            Screen.setAutoHBMSmoothingSamples(position + 3, getActivity());
+            mScreenAutoHBMSmoothingSamplesCard.setDescription("Number of Samples: " + (position + 3));
+        }
+        else if (dSeekBarCard == mScreenAutoHBMValueCard)
+            Screen.setAutoHBMThresh(position * 5, getActivity());
         else if (dSeekBarCard == mLcdMinBrightnessCard)
             Screen.setLcdMinBrightness(position + 2, getActivity());
         else if (dSeekBarCard == mLcdMaxBrightnessCard)
@@ -810,8 +898,20 @@ public class ScreenFragment extends RecyclerViewFragment implements SeekBarCardV
             mSaturationIntensityCard.setEnabled(!checked);
             Screen.activateGrayscaleMode(checked, getActivity());
             if (!checked) mSaturationIntensityCard.setProgress(30);
+        } else if (dSwitchCard == mScreenAutoHBMCard) {
+            Screen.activateScreenAutoHBM(checked, getActivity());
+            view.invalidate();
+            getActivity().getSupportFragmentManager().beginTransaction().detach(this).attach(this).commit();
+        } else if (dSwitchCard == mScreenAutoHBMSmoothingCard) {
+            Screen.activateScreenHBMSmoothing(checked, getActivity());
+            if (checked) {
+                Utils.toast(getString(R.string.auto_high_brightness_smoothing_warning), getContext());
+            }
+            forcerefresh();
+        } else if (dSwitchCard == mScreenHBMLockCard) {
+            Screen.activateScreenHBMLock(checked, getActivity());
         } else if (dSwitchCard == mScreenHBMCard)
-            Screen.activateScreenHBM(checked, getActivity());
+            Screen.activateScreenHBM(checked, getActivity(), "Manual");
         else if (dSwitchCard == mScreenColorTempEnableCard)
             Screen.activateFb0ColorTemp(checked, getActivity());
         else if (dSwitchCard == mBackLightDimmerEnableCard)
@@ -896,6 +996,17 @@ public class ScreenFragment extends RecyclerViewFragment implements SeekBarCardV
         } else if (dPopupCard == mDsiPanelProfilesCard) {
             Screen.setDsiPanelProfile(position, Screen.getDsiPanelProfiles(getActivity()), getActivity());
             refreshDsiPanel();
+        } else if (dPopupCard == mScreenColorProilesCard) {
+            if (position != 0) {
+                Screen.setScreenColorProfile(position - 1, Screen.getScreenColorProfiles(getActivity()), getActivity());
+                // This sleep isn't great, but the update was happening while the values were being set.
+                try {
+                    Thread.sleep(100);
+                } catch(InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+                forcerefresh();
+            }
         }
     }
 
@@ -1004,6 +1115,8 @@ public class ScreenFragment extends RecyclerViewFragment implements SeekBarCardV
         String blue = Screen.getKGammaBlue();
         mKGammaBlueCard.setDescription(blue);
         mKGammaBlueCard.setValue(blue);
+
+
     }
 
     private void refreshGammaControl() {
@@ -1104,4 +1217,18 @@ public class ScreenFragment extends RecyclerViewFragment implements SeekBarCardV
         mDsiPanelWhitePointCard.setValue(whitePoint);
     }
 
+    @Override
+    public boolean onRefresh() {
+        if (mScreenAutoHBMValueCard != null) {
+            mScreenAutoHBMValueCard.setDescription("Current Lux Value: " + AutoHighBrightnessModeService.lux);
+        }
+        if ( mScreenHBMCard != null) {
+            mScreenHBMCard.setChecked(Screen.isScreenHBMActive());
+        }
+        return true;
+    }
+
+    private void forcerefresh() {
+        getActivity().getSupportFragmentManager().beginTransaction().detach(this).attach(this).commit();
+    }
 }

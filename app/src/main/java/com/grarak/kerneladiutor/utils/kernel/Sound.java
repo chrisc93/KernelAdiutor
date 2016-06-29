@@ -156,12 +156,41 @@ public class Sound implements Constants {
         return Utils.existFile(HANDSET_MICROPONE_GAIN);
     }
 
-    public static void setHeadphoneGain(String value, Context context) {
-        Control.runCommand(value + " " + value, HEADPHONE_GAIN, Control.CommandType.FAUX_GENERIC, context);
+    public static boolean isIndependentHeadphoneGainEnabled(Context context) {
+        try {
+            return Utils.getBoolean("Independent_Headphone_Gain_Enabled", false, context);
+        } catch (NullPointerException err) {
+            return false;
+        }
     }
 
-    public static String getCurHeadphoneGain() {
-        return Utils.readFile(HEADPHONE_GAIN).split(" ")[0];
+    public static void setIndependentHeadphoneGainEnabled(boolean active, Context context) {
+        Utils.saveBoolean("Independent_Headphone_Gain_Enabled", active, context);
+    }
+
+    public static void setHeadphoneGain(String value, Context context, String side) {
+        if (side.equals("B")) {
+            Control.runCommand(value + " " + value, Utils.getsysfspath(HEADPHONE_GAIN), Control.CommandType.FAUX_GENERIC, context);
+        }
+        if (side.equals("L")) {
+            Control.runCommand(value + " " + getCurHeadphoneGain("R"), Utils.getsysfspath(HEADPHONE_GAIN), Control.CommandType.FAUX_GENERIC, context);
+        }
+        if (side.equals("R")) {
+            Control.runCommand(getCurHeadphoneGain("L") + " " + value, Utils.getsysfspath(HEADPHONE_GAIN), Control.CommandType.FAUX_GENERIC, context);
+        }
+    }
+
+    public static String getCurHeadphoneGain(String side) {
+        if (side.equals("B")) {
+            return Utils.readFile(Utils.getsysfspath(HEADPHONE_GAIN)).split(" ")[0];
+        }
+        if (side.equals("L")) {
+            return Utils.readFile(Utils.getsysfspath(HEADPHONE_GAIN)).split(" ")[0];
+        }
+        if (side.equals("R")) {
+            return Utils.readFile(Utils.getsysfspath(HEADPHONE_GAIN)).split(" ")[1];
+        }
+        return "0";
     }
 
     public static List<String> getHeadphoneGainLimits() {
@@ -172,7 +201,7 @@ public class Sound implements Constants {
     }
 
     public static boolean hasHeadphoneGain() {
-        return Utils.existFile(HEADPHONE_GAIN);
+        return Utils.existFile(Utils.getsysfspath(HEADPHONE_GAIN));
     }
 
     public static void activateHighPerfMode(boolean active, Context context) {
@@ -188,15 +217,15 @@ public class Sound implements Constants {
     }
 
     public static void activateSoundControl(boolean active, Context context) {
-        Control.runCommand(active ? "Y" : "N", SOUND_CONTROL_ENABLE, Control.CommandType.GENERIC, context);
+        Control.runCommand(active ? "Y" : "N", Utils.getsysfspath(SOUND_CONTROL_ENABLE), Control.CommandType.GENERIC, context);
     }
 
     public static boolean isSoundControlActive() {
-        return Utils.readFile(SOUND_CONTROL_ENABLE).equals("Y");
+        return Utils.readFile(Utils.getsysfspath(SOUND_CONTROL_ENABLE)).equals("Y");
     }
 
     public static boolean hasSoundControlEnable() {
-        return Utils.existFile(SOUND_CONTROL_ENABLE);
+        return Utils.existFile(Utils.getsysfspath(SOUND_CONTROL_ENABLE));
     }
 
     public static boolean hasSound() {
@@ -206,4 +235,37 @@ public class Sound implements Constants {
         return false;
     }
 
+    public static void activateWcdSpkr_Drv_Wrnd(boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", WCD_SPKR_DRV_WRND, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isWcdSpkr_Drv_Wrnd_Active() {
+        return Utils.readFile(WCD_SPKR_DRV_WRND).equals("1");
+    }
+
+    public static boolean hasWcdSpkr_Drv_WrndEnable() {
+        return Utils.existFile(WCD_SPKR_DRV_WRND);
+    }
+
+    public static void activateWcdHighPerfMode(boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", Utils.getsysfspath(WCD_HIGHPERF_MODE_ENABLE), Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isWcdHighPerfModeActive() {
+        return Utils.readFile(Utils.getsysfspath(WCD_HIGHPERF_MODE_ENABLE)).equals("1");
+    }
+
+    public static boolean hasWcdHighPerfMode() {
+        return Utils.existFile(Utils.getsysfspath(WCD_HIGHPERF_MODE_ENABLE));
+    }
+
+    public static boolean hasDriverTunables() {
+        if (Utils.existFile(WCD_SPKR_DRV_WRND) || Utils.existFile(Utils.getsysfspath(WCD_HIGHPERF_MODE_ENABLE))) return true;
+        else return false;
+    }
+
+    public static boolean hasThirdPartyTunables() {
+        if (Utils.existFile(FAUX_SOUND) || Utils.existFile(FRANCO_SOUND)) return true;
+        else return false;
+    }
 }

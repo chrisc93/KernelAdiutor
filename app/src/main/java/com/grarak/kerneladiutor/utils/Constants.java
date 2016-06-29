@@ -38,6 +38,8 @@ public interface Constants {
     String PROC_VERSION = "/proc/version";
     String PROC_CPUINFO = "/proc/cpuinfo";
     String PROC_MEMINFO = "/proc/meminfo";
+    String PVS_LEVEL = "/sys/module/clock_krait_8974/parameters/pvs_level";
+    String SPEED_LEVEL = "/sys/module/clock_krait_8974/parameters/speed_level";
 
     // CPU
     String CPU_CUR_FREQ = "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_cur_freq";
@@ -53,6 +55,7 @@ public interface Constants {
     String CPU_AVAILABLE_FREQS = "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_available_frequencies";
     String CPU_TIME_STATE = "/sys/devices/system/cpu/cpufreq/stats/cpu%d/time_in_state";
     String CPU_TIME_STATE_2 = "/sys/devices/system/cpu/cpu%d/cpufreq/stats/time_in_state";
+    String[] CPU_TIME_IN_STATE_ARRAY = { CPU_TIME_STATE, CPU_TIME_STATE_2 };
     String CPU_SCALING_GOVERNOR = "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor";
     String CPU_AVAILABLE_GOVERNORS = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors";
 
@@ -75,6 +78,7 @@ public interface Constants {
     String CPU_BOOST_DEBUG_MASK = CPU_BOOST + "/debug_mask";
     String CPU_BOOST_MS = CPU_BOOST + "/boost_ms";
     String CPU_BOOST_SYNC_THRESHOLD = CPU_BOOST + "/sync_threshold";
+    String INPUT_BOOST_ENABLE = CPU_BOOST + "/input_boost_enabled";
     String CPU_BOOST_INPUT_MS = CPU_BOOST + "/input_boost_ms";
     String CPU_BOOST_INPUT_BOOST_FREQ = CPU_BOOST + "/input_boost_freq";
     String CPU_BOOST_WAKEUP = CPU_BOOST + "/wakeup_boost";
@@ -82,12 +86,48 @@ public interface Constants {
 
     String CPU_TOUCH_BOOST = "/sys/module/msm_performance/parameters/touchboost";
 
+    // Alu_Touch_Boost : Added By Eliminater74 //
+    String ALU_T_BOOST = "/sys/module/alu_t_boost/parameters";
+    String ALU_T_BOOST_FREQ = ALU_T_BOOST + "/input_boost_freq";
+    String ALU_T_BOOST_MS = ALU_T_BOOST + "/input_boost_ms";
+    String ALU_T_BOOST_INTERVAL = ALU_T_BOOST + "/min_input_interval";
+    String ALU_T_BOOST_CPUS = ALU_T_BOOST + "/nr_boost_cpus";
+
+    String CPU_MSM_LIMITER = "/sys/kernel/msm_limiter";
+    String CPU_MSM_LIMITER_ENABLE = "/sys/kernel/msm_limiter/limiter_enabled";
+    String CPU_MSM_LIMITER_ENABLE_NEW = "/sys/kernel/msm_limiter/freq_control";
+    String CPU_MSM_LIMITER_RESUME_MAX = "/sys/kernel/msm_limiter/resume_max_freq";
+    String CPU_MSM_LIMITER_SUSPEND_MIN = "/sys/kernel/msm_limiter/suspend_min_freq";
+    String CPU_MSM_LIMITER_SUSPEND_MAX = "/sys/kernel/msm_limiter/suspend_max_freq";
+    String CPU_MAX_FREQ_PER_CORE = "/sys/kernel/msm_limiter/resume_max_freq_%d";
+    String CPU_MIN_FREQ_PER_CORE = "/sys/kernel/msm_limiter/suspend_min_freq_%d";
+    String CPU_MSM_LIMITER_SCALING_GOVERNOR = "/sys/kernel/msm_limiter/scaling_governor";
+    String CPU_MSM_LIMITER_SCALING_GOVERNOR_PER_CORE = "/sys/kernel/msm_limiter/scaling_governor_%d";
+    String CPU_MSM_LIMITER_VERSION = "/sys/kernel/msm_limiter/msm_limiter_version";
+
+    // Big.Little Part Numbers
+    // A15: 0xc0f , A57: 0xd07
+    String[] CPU_BIG_PARTS = {"0xc0f", "0xd07"};
+    // A53: 0xd03
+    String[] CPU_LITTLE_PARTS = {"0xd03"};
+
     String[] CPU_ARRAY = {CPU_CUR_FREQ, CPU_TEMP_ZONE0, CPU_TEMP_ZONE1, CPU_CORE_ONLINE, CPU_MAX_FREQ, CPU_MAX_FREQ_KT, CPU_ENABLE_OC,
             CPU_MIN_FREQ, CPU_MAX_SCREEN_OFF_FREQ, CPU_MSM_CPUFREQ_LIMIT, CPU_AVAILABLE_FREQS, CPU_TIME_STATE, CPU_SCALING_GOVERNOR,
             CPU_AVAILABLE_GOVERNORS, CPU_GOVERNOR_TUNABLES, CPU_GOVERNOR_TUNABLES_CORE, CPU_MC_POWER_SAVING, CPU_WQ_POWER_SAVING,
-            CPU_AVAILABLE_CFS_SCHEDULERS, CPU_CURRENT_CFS_SCHEDULER, CPU_QUIET, CPU_BOOST, CPU_TOUCH_BOOST};
+            CPU_AVAILABLE_CFS_SCHEDULERS, CPU_CURRENT_CFS_SCHEDULER, CPU_QUIET, CPU_BOOST, CPU_TOUCH_BOOST, CPU_MSM_LIMITER_ENABLE, CPU_MSM_LIMITER_ENABLE_NEW,
+            CPU_MSM_LIMITER_RESUME_MAX, CPU_MSM_LIMITER_SUSPEND_MIN, CPU_MSM_LIMITER_SUSPEND_MAX, CPU_MSM_LIMITER_SCALING_GOVERNOR,
+            CPU_MSM_LIMITER_SCALING_GOVERNOR_PER_CORE,CPU_MIN_FREQ_PER_CORE, CPU_MAX_FREQ_PER_CORE, ALU_T_BOOST };
 
-    // CPU Voltage
+  //Core Control
+    String MINBIG = "/sys/devices/system/cpu/cpu4/core_ctl/min_cpus";
+    String MINLITTLE = "/sys/devices/system/cpu/cpu0/core_ctl/min_cpus";
+
+    String MAXBIG = "/sys/devices/system/cpu/cpu4/core_ctl/max_cpus";
+    String MAXLITTLE = "/sys/devices/system/cpu/cpu0/core_ctl/max_cpus";
+
+    String[] CORECONTROL_ARRAY = {MINBIG, MINLITTLE, MAXBIG, MAXLITTLE};
+
+  // CPU Voltage
     String CPU_VOLTAGE = "/sys/devices/system/cpu/cpu0/cpufreq/UV_mV_table";
     String CPU_VDD_VOLTAGE = "/sys/devices/system/cpu/cpu0/cpufreq/vdd_levels";
     String CPU_FAUX_VOLTAGE = "/sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels";
@@ -97,10 +137,14 @@ public interface Constants {
     String[] CPU_VOLTAGE_ARRAY = {CPU_VOLTAGE, CPU_VDD_VOLTAGE, CPU_FAUX_VOLTAGE, CPU_OVERRIDE_VMIN};
 
     // CPU Hotplug
+    String BCH = "/sys/kernel/boeffla_config_mode/enabled";
     String HOTPLUG_MPDEC = "mpdecision";
 
+    String MSMPERFORMANCE= "/sys/module/msm_performance/parameters/max_cpus";
+
     String HOTPLUG_INTELLI_PLUG = "/sys/module/intelli_plug/parameters";
-    String HOTPLUG_INTELLI_PLUG_ENABLE = HOTPLUG_INTELLI_PLUG + "/intelli_plug_active";
+    String HOTPLUG_INTELLI_PLUG_ENABLE = "/intelli_plug_active";
+
     String HOTPLUG_INTELLI_PLUG_PROFILE = HOTPLUG_INTELLI_PLUG + "/nr_run_profile_sel";
     String HOTPLUG_INTELLI_PLUG_ECO = HOTPLUG_INTELLI_PLUG + "/eco_mode_active";
     String HOTPLUG_INTELLI_PLUG_TOUCH_BOOST = HOTPLUG_INTELLI_PLUG + "/touch_boost_active";
@@ -166,6 +210,7 @@ public interface Constants {
     String HOTPLUG_MSM_SUSPEND_DEFER_TIME = HOTPLUG_MSM + "/suspend_defer_time";
 
     String[] HOTPLUG_MSM_ARRAY = {HOTPLUG_MSM};
+    String[] HOTPLUG_MSM_ENABLE_ARRAY = {HOTPLUG_MSM_ENABLE,HOTPLUG_MSM_ENABLE_2 };
 
     String MAKO_HOTPLUG = "/sys/class/misc/mako_hotplug_control";
     String MAKO_HOTPLUG_ENABLED = MAKO_HOTPLUG + "/enabled";
@@ -199,6 +244,9 @@ public interface Constants {
     String MB_STARTDELAY = "startdelay";
     String MB_DELAY = "delay";
     String MB_PAUSE = "pause";
+    String BRICKED_NWNS = "nwns_threshold";
+    String BRICKED_TWTS = "twts_threshold";
+    String BRICKED_DOWN_LOCK_DURATION = "down_lock_duration";
 
     String[] MB_HOTPLUG_ARRAY = {MSM_MPDECISION_HOTPLUG, BRICKED_HOTPLUG};
 
@@ -217,11 +265,13 @@ public interface Constants {
 
     String HOTPLUG_THUNDER_PLUG = "/sys/kernel/thunderplug";
     String HOTPLUG_THUNDER_PLUG_ENABLE = HOTPLUG_THUNDER_PLUG + "/hotplug_enabled";
+    String HOTPLUG_THUNDER_HP_STYLE = HOTPLUG_THUNDER_PLUG + "/hotplug_style";
     String HOTPLUG_THUNDER_PLUG_SUSPEND_CPUS = HOTPLUG_THUNDER_PLUG + "/suspend_cpus";
     String HOTPLUG_THUNDER_PLUG_ENDURANCE_LEVEL = HOTPLUG_THUNDER_PLUG + "/endurance_level";
     String HOTPLUG_THUNDER_PLUG_SAMPLING_RATE = HOTPLUG_THUNDER_PLUG + "/sampling_rate";
     String HOTPLUG_THUNDER_PLUG_LOAD_THRESHOLD = HOTPLUG_THUNDER_PLUG + "/load_threshold";
     String HOTPLUG_THUNDER_PLUG_TOUCH_BOOST = HOTPLUG_THUNDER_PLUG + "/touch_boost";
+    String HOTPLUG_THUNDER_PLUG_SCHED_BOOST = HOTPLUG_THUNDER_PLUG + "/sched_mode";
 
     String[] HOTPLUG_THUNDER_PLUG_ARRAY = {HOTPLUG_THUNDER_PLUG};
 
@@ -246,8 +296,56 @@ public interface Constants {
 
     String[] HOTPLUG_AUTOSMP_ARRAY = {HOTPLUG_AUTOSMP_PARAMETERS, HOTPLUG_AUTOSMP_CONF};
 
-    String[][] CPU_HOTPLUG_ARRAY = {{HOTPLUG_MPDEC}, INTELLIPLUG_ARRAY, BLU_PLUG_ARRAY, HOTPLUG_MSM_ARRAY, MAKO_HOTPLUG_ARRAY,
-            MB_HOTPLUG_ARRAY, ALUCARD_HOTPLUG_ARRAY, HOTPLUG_THUNDER_PLUG_ARRAY, HOTPLUG_ZEN_DECISION_ARRAY, HOTPLUG_AUTOSMP_ARRAY};
+    String HOTPLUG_LAZYPLUG_PARAMETERS = "/sys/module/lazyplug/parameters/";
+    String HOTPLUG_LAZYPLUG_ACTIVE = HOTPLUG_LAZYPLUG_PARAMETERS + "/lazyplug_active";
+    String HOTPLUG_LAZYPLUG_CPU_NR_RUN_TRESHOLD = HOTPLUG_LAZYPLUG_PARAMETERS + "/cpu_nr_run_threshold";
+    String HOTPLUG_LAZYPLUG_NR_POSSIBLE_CORES = HOTPLUG_LAZYPLUG_PARAMETERS + "/nr_possible_cores";
+    String HOTPLUG_LAZYPLUG_NR_RUN_HYSTERESIS = HOTPLUG_LAZYPLUG_PARAMETERS + "/nr_run_hysteresis";
+    String HOTPLUG_LAZYPLUG_NR_RUN_PROFILE_SET = HOTPLUG_LAZYPLUG_PARAMETERS + "/nr_run_profile_sel";
+    String HOTPLUG_LAZYPLUG_TOUCH_BOOST_ACTIVE = HOTPLUG_LAZYPLUG_PARAMETERS + "/touch_boost_active";
+
+    String[] HOTPLUG_LAZYPLUG_ARRAY = {HOTPLUG_LAZYPLUG_PARAMETERS};
+
+    String HOTPLUG_DYN_PLUG = "/sys/module/dyn_hotplug/parameters";
+    String HOTPLUG_DYN_PLUG_ENABLE = HOTPLUG_DYN_PLUG + "/enabled";
+    String HOTPLUG_DYN_PLUG_MIN_ONLINE = HOTPLUG_DYN_PLUG + "/min_online";
+    String HOTPLUG_DYN_PLUG_MAX_ONLINE = HOTPLUG_DYN_PLUG + "/max_online";
+    String HOTPLUG_DYN_PLUG_UP_THRESHOLD = HOTPLUG_DYN_PLUG + "/up_threshold";
+    String HOTPLUG_DYN_PLUG_UP_TIMER_CNT = HOTPLUG_DYN_PLUG + "/up_timer_cnt";
+    String HOTPLUG_DYN_PLUG_DOWN_TIMER_CNT = HOTPLUG_DYN_PLUG + "/down_timer_cnt";
+
+    String[] DYN_PLUG_ARRAY = {HOTPLUG_DYN_PLUG};
+
+    String HOTPLUG_AUTO_HOTPLUG = "/sys/module/auto_hotplug/parameters";
+    String HOTPLUG_AUTO_HOTPLUG_ENABLE = HOTPLUG_AUTO_HOTPLUG + "/enabled";
+    String HOTPLUG_AUTO_HOTPLUG_MIN_ONLINE = HOTPLUG_AUTO_HOTPLUG + "/min_online_cpus";
+    String HOTPLUG_AUTO_HOTPLUG_MAX_ONLINE = HOTPLUG_AUTO_HOTPLUG + "/max_online_cpus";
+    String HOTPLUG_AUTO_HOTPLUG_ENABLE_LOAD_THRESHOLD = HOTPLUG_AUTO_HOTPLUG + "/enable_load_threshold";
+    String HOTPLUG_AUTO_HOTPLUG_ENABLE_ALL_LOAD_THRESHOLD = HOTPLUG_AUTO_HOTPLUG + "/enable_all_load_threshold";
+    String HOTPLUG_AUTO_HOTPLUG_DISABLE_LOAD_THRESHOLD = HOTPLUG_AUTO_HOTPLUG + "/disable_load_threshold";
+    String HOTPLUG_AUTO_HOTPLUG_SAMPLING_PERIODS = HOTPLUG_AUTO_HOTPLUG + "/sampling_periods";
+
+    String[] AUTO_HOTPLUG_ARRAY = {HOTPLUG_AUTO_HOTPLUG};
+
+    String MSM_SLEEPER = "/sys/devices/platform/msm_sleeper";
+    String MSM_SLEEPER_ENABLE = MSM_SLEEPER + "/enabled";
+    String MSM_SLEEPER_UP_THRESHOLD = MSM_SLEEPER + "/up_threshold";
+    String MSM_SLEEPER_MAX_ONLINE = MSM_SLEEPER + "/max_online";
+    String MSM_SLEEPER_SUSPEND_MAX_ONLINE = MSM_SLEEPER + "/suspend_max_online";
+    String MSM_SLEEPER_UP_COUNT_MAX = MSM_SLEEPER + "/up_count_max";
+    String MSM_SLEEPER_DOWN_COUNT_MAX = MSM_SLEEPER + "/down_count_max";
+
+    String STATE_HELPER = "/sys/kernel/state_helper";
+    String STATE_HELPER_ENABLE = STATE_HELPER + "/enabled";
+    String STATE_HELPER_MAX_CPUS_ONLINE = STATE_HELPER + "/max_cpus_online";
+    String STATE_HELPER_MAX_CPUS_SUSPEND = STATE_HELPER + "/max_cpus_susp";
+    String STATE_HELPER_BATT_LEVEL_ECO = STATE_HELPER + "/batt_level_eco";
+    String STATE_HELPER_BATT_LEVEL_CRI = STATE_HELPER + "/batt_level_cri";
+    String STATE_HELPER_MAX_CPU_ECO = STATE_HELPER + "/max_cpus_eco";
+    String STATE_HELPER_MAX_CPU_CRI = STATE_HELPER + "/max_cpus_cri";
+
+    String[][] CPU_HOTPLUG_ARRAY = {{HOTPLUG_MPDEC, MSM_SLEEPER, STATE_HELPER, MSMPERFORMANCE, BCH}, INTELLIPLUG_ARRAY, BLU_PLUG_ARRAY, HOTPLUG_MSM_ARRAY, MAKO_HOTPLUG_ARRAY,
+            MB_HOTPLUG_ARRAY, ALUCARD_HOTPLUG_ARRAY, HOTPLUG_THUNDER_PLUG_ARRAY, HOTPLUG_ZEN_DECISION_ARRAY, HOTPLUG_AUTOSMP_ARRAY, HOTPLUG_LAZYPLUG_ARRAY, DYN_PLUG_ARRAY, AUTO_HOTPLUG_ARRAY};
 
     // Thermal
     String THERMALD = "thermald";
@@ -277,9 +375,17 @@ public interface Constants {
     String MSM_THERMAL_FREQ_LIMIT_DEBUG = MSM_THERMAL + "/parameters/freq_limit_debug";
     String MSM_THERMAL_MIN_FREQ_INDEX = MSM_THERMAL + "/parameters/min_freq_index";
     String TEMPCONTROL_TEMP_LIMIT = "/sys/class/misc/tempcontrol/templimit";
+    String THERMAL_FRANCO_STAGE_ONE = "/sys/module/msm_thermal/parameters/freq_warm";
+    String THERMAL_FRANCO_STAGE_TWO = "/sys/module/msm_thermal/parameters/freq_hot";
+    String THERMAL_FRANCO_STAGE_THREE = "/sys/module/msm_thermal/parameters/freq_very_hot";
+    String THERMAL_FRANCO_STAGE_FOUR = "/sys/module/msm_thermal/parameters/freq_hell";
+    String THERMAL_FRANCO_POLL = "/sys/module/msm_thermal/parameters/poll_interval";
+    String THERMAL_FRANCO_STEP = "/sys/module/msm_thermal/parameters/temp_step";
 
     String[] TEMP_LIMIT_ARRAY = {MSM_THERMAL_THROTTLE_TEMP, MSM_THERMAL_TEMP_MAX, MSM_THERMAL_TEMP_THRESHOLD,
-            MSM_THERMAL_FREQ_LIMIT_DEBUG, MSM_THERMAL_MIN_FREQ_INDEX, TEMPCONTROL_TEMP_LIMIT};
+            MSM_THERMAL_FREQ_LIMIT_DEBUG, MSM_THERMAL_MIN_FREQ_INDEX, TEMPCONTROL_TEMP_LIMIT, THERMAL_FRANCO_STAGE_ONE,
+            THERMAL_FRANCO_STAGE_TWO, THERMAL_FRANCO_STAGE_THREE, THERMAL_FRANCO_STAGE_FOUR, THERMAL_FRANCO_POLL,
+            THERMAL_FRANCO_STEP };
 
     String MSM_THERMAL_CONF = "/sys/kernel/msm_thermal/conf";
     String CONF_ALLOWED_LOW_LOW = MSM_THERMAL_CONF + "/allowed_low_low";
@@ -336,12 +442,28 @@ public interface Constants {
     String GPU_AVAILABLE_1C00000_QCOM_FREQ = "/sys/devices/soc.0/1c00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_available_frequencies";
     String GPU_SCALING_1C00000_QCOM_GOVERNOR = "/sys/devices/soc.0/1c00000.qcom,kgsl-3d0/devfreq/1c00000.qcom,kgsl-3d0/governor";
     String GPU_AVAILABLE_1C00000_QCOM_GOVERNORS = "/sys/devices/soc.0/1c00000.qcom,kgsl-3d0/devfreq/1c00000.qcom,kgsl-3d0/available_governors";
+    
+    String GPU_CUR_B00000_QCOM_FREQ = "/sys/devices/soc/b00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpuclk";
+    String GPU_MAX_B00000_QCOM_FREQ = "/sys/devices/soc/b00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/max_gpuclk";
+    String GPU_AVAILABLE_B00000_QCOM_FREQ = "/sys/devices/soc/b00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_available_frequencies";
+    String GPU_SCALING_B00000_QCOM_GOVERNOR = "/sys/devices/soc/b00000.qcom,kgsl-3d0/devfreq/b00000.qcom,kgsl-3d0/governor";
+    String GPU_AVAILABLE_B00000_QCOM_GOVERNORS = "/sys/devices/soc/b00000.qcom,kgsl-3d0/devfreq/b00000.qcom,kgsl-3d0/available_governors";
 
     String GPU_CUR_OMAP_FREQ = "/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency";
     String GPU_MAX_OMAP_FREQ = "/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency_limit";
     String GPU_AVAILABLE_OMAP_FREQS = "/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency_list";
     String GPU_SCALING_OMAP_GOVERNOR = "/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/governor";
     String GPU_AVAILABLE_OMAP_GOVERNORS = "/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/governor_list";
+
+    String GPU_POWERVR_AVAILABLE_FREQS = "/sys/class/devfreq/dfrgx/available_frequencies";
+    String GPU_POWERVR_CURRENT_FREQ = "/sys/class/devfreq/dfrgx/cur_freq";
+    String GPU_POWERVR_MAX_FREQ = "/sys/class/devfreq/dfrgx/max_freq";
+    String GPU_POWERVR_MIN_FREQ = "/sys/class/devfreq/dfrgx/min_freq";
+    String GPU_POWERVR_GOVERNOR = "/sys/class/devfreq/dfrgx/governor";
+    String GPU_POWERVR_AVAILABLE_GOVERNORS = "/sys/class/devfreq/dfrgx/available_governors";
+
+    String GPU_MIN_POWER_LEVEL = "/sys/devices/fdb00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/min_pwrlevel";
+    String GPU_NUM_POWER_LEVELS = "/sys/devices/fdb00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/num_pwrlevels";
 
     String GPU_CUR_TEGRA_FREQ = "/sys/kernel/tegra_gpu/gpu_rate";
     String GPU_MAX_TEGRA_FREQ = "/sys/kernel/tegra_gpu/gpu_cap_rate";
@@ -357,23 +479,24 @@ public interface Constants {
     String[] GPU_2D_SCALING_GOVERNOR_ARRAY = {GPU_SCALING_KGSL2D0_QCOM_GOVERNOR};
 
     String[] GPU_CUR_FREQ_ARRAY = {GPU_CUR_KGSL3D0_QCOM_FREQ, GPU_CUR_FDB00000_QCOM_FREQ, GPU_CUR_FDC00000_QCOM_FREQ,
-            GPU_CUR_SOC0_FDB00000_QCOM_FREQ, GPU_CUR_1C00000_QCOM_FREQ, GPU_CUR_OMAP_FREQ, GPU_CUR_TEGRA_FREQ};
+            GPU_CUR_SOC0_FDB00000_QCOM_FREQ, GPU_CUR_1C00000_QCOM_FREQ, GPU_CUR_B00000_QCOM_FREQ, GPU_CUR_OMAP_FREQ, GPU_POWERVR_CURRENT_FREQ, GPU_CUR_TEGRA_FREQ};
 
     String[] GPU_MAX_FREQ_ARRAY = {GPU_MAX_KGSL3D0_QCOM_FREQ, GPU_MAX_FDB00000_QCOM_FREQ, GPU_MAX_FDC00000_QCOM_FREQ,
-            GPU_MAX_SOC0_FDB00000_QCOM_FREQ, GPU_MAX_1C00000_QCOM_FREQ, GPU_MAX_OMAP_FREQ, GPU_MAX_TEGRA_FREQ};
+            GPU_MAX_SOC0_FDB00000_QCOM_FREQ, GPU_MAX_1C00000_QCOM_FREQ, GPU_MAX_B00000_QCOM_FREQ, GPU_MAX_OMAP_FREQ, GPU_POWERVR_MAX_FREQ, GPU_MAX_TEGRA_FREQ};
 
-    String[] GPU_MIN_FREQ_ARRAY = {GPU_MIN_FDB00000_QCOM_FREQ, GPU_MIN_TEGRA_FREQ};
+    String[] GPU_MIN_FREQ_ARRAY = {GPU_MIN_FDB00000_QCOM_FREQ, GPU_POWERVR_MIN_FREQ, GPU_MIN_TEGRA_FREQ};
 
     String[] GPU_AVAILABLE_FREQS_ARRAY = {GPU_AVAILABLE_KGSL3D0_QCOM_FREQS, GPU_AVAILABLE_FDB00000_QCOM_FREQS,
-            GPU_AVAILABLE_SOC0_FDB00000_QCOM_FREQS, GPU_AVAILABLE_FDC00000_QCOM_FREQS, GPU_AVAILABLE_1C00000_QCOM_FREQ,
-            GPU_AVAILABLE_OMAP_FREQS, GPU_AVAILABLE_TEGRA_FREQS};
+            GPU_AVAILABLE_SOC0_FDB00000_QCOM_FREQS, GPU_AVAILABLE_FDC00000_QCOM_FREQS, GPU_AVAILABLE_1C00000_QCOM_FREQ, 
+            GPU_AVAILABLE_B00000_QCOM_FREQ, GPU_AVAILABLE_OMAP_FREQS, GPU_POWERVR_AVAILABLE_FREQS, GPU_AVAILABLE_TEGRA_FREQS};
 
     String[] GPU_SCALING_GOVERNOR_ARRAY = {GPU_SCALING_KGSL3D0_QCOM_GOVERNOR, GPU_SCALING_FDB00000_QCOM_GOVERNOR,
             GPU_SCALING_PWRSCALE_GOVERNOR, GPU_SCALING_FDC00000_QCOM_GOVERNOR, GPU_SCALING_SOC0_FDB00000_QCOM_GOVERNOR,
-            GPU_SCALING_1C00000_QCOM_GOVERNOR, GPU_SCALING_OMAP_GOVERNOR};
+            GPU_SCALING_1C00000_QCOM_GOVERNOR, GPU_SCALING_B00000_QCOM_GOVERNOR, GPU_SCALING_OMAP_GOVERNOR, GPU_POWERVR_GOVERNOR};
 
     String[] GPU_AVAILABLE_GOVERNORS_ARRAY = {GPU_AVAILABLE_FDB00000_QCOM_GOVERNORS, GPU_AVAILABLE_FDC00000_QCOM_GOVERNORS,
-            GPU_AVAILABLE_SOC0_FDB00000_QCOM_GOVERNORS, GPU_AVAILABLE_1C00000_QCOM_GOVERNORS, GPU_AVAILABLE_OMAP_GOVERNORS};
+            GPU_AVAILABLE_SOC0_FDB00000_QCOM_GOVERNORS, GPU_AVAILABLE_1C00000_QCOM_GOVERNORS, 
+            GPU_AVAILABLE_B00000_QCOM_GOVERNORS, GPU_AVAILABLE_OMAP_GOVERNORS, GPU_POWERVR_AVAILABLE_GOVERNORS};
 
     // Simple GPU
     String SIMPLE_GPU_PARAMETERS = "/sys/module/simple_gpu_algorithm/parameters";
@@ -392,7 +515,7 @@ public interface Constants {
             GPU_2D_MAX_FREQ_ARRAY, GPU_2D_AVAILABLE_FREQS_ARRAY,
             GPU_2D_SCALING_GOVERNOR_ARRAY, GPU_CUR_FREQ_ARRAY,
             GPU_MAX_FREQ_ARRAY, GPU_MIN_FREQ_ARRAY, GPU_AVAILABLE_FREQS_ARRAY,
-            GPU_SCALING_GOVERNOR_ARRAY, {SIMPLE_GPU_PARAMETERS, ADRENO_IDLER_PARAMETERS}};
+            GPU_SCALING_GOVERNOR_ARRAY, {SIMPLE_GPU_PARAMETERS, ADRENO_IDLER_PARAMETERS, GPU_MIN_POWER_LEVEL}};
 
     // Screen
     String SCREEN_KCAL = "/sys/devices/platform/kcal_ctrl.0";
@@ -431,7 +554,7 @@ public interface Constants {
     String[] SCREEN_RGB_CTRL_ARRAY = {SCREEN_KCAL_CTRL_ENABLE, SCREEN_KCAL_CTRL_CTRL,
             SCREEN_DIAG0_POWER_CTRL, SCREEN_COLOR_CONTROL_CTRL};
 
-    String SCREEN_HBM = "/sys/devices/virtual/graphics/fb0/hbm";
+    String SCREEN_HBM[] = {"/sys/devices/virtual/graphics/fb0/hbm", "/sys/class/graphics/fb0/sre"};
 
     String SCREEN_FB0_COLOR_TEMP = "/sys/class/graphics/fb0/color_temp";
 
@@ -463,8 +586,6 @@ public interface Constants {
     String GAMMACONTROL_BRIGHTNESS = GAMMACONTROL + "/brightness";
     String GAMMACONTROL_SATURATION = GAMMACONTROL + "/saturation";
 
-    String[] GAMMACONTROL_ARRAY = {GAMMACONTROL};
-
     String DSI_PANEL_RP = "/sys/module/dsi_panel/kgamma_rp";
     String DSI_PANEL_RN = "/sys/module/dsi_panel/kgamma_rn";
     String DSI_PANEL_GP = "/sys/module/dsi_panel/kgamma_gp";
@@ -480,6 +601,9 @@ public interface Constants {
     String LM3530_MIN_BRIGHTNESS = "/sys/devices/i2c-0/0-0038/lm3530_min_br";
     String LM3530_MAX_BRIGHTNESS = "/sys/devices/i2c-0/0-0038/lm3530_max_br";
 
+    String ZE551ML_MIN_BRIGHTNESS = "/sys/class/backlight/psb-bl/min_brightness";
+    String ZE551ML_MAX_BRIGHTNESS = "/sys/class/backlight/psb-bl/max_brightness";
+
     // Backlight Dimmer
     String LM3630_BACKLIGHT_DIMMER = "/sys/module/lm3630_bl/parameters/backlight_dimmer";
     String LM3630_MIN_BRIGHTNESS = "/sys/module/lm3630_bl/parameters/min_brightness";
@@ -489,7 +613,7 @@ public interface Constants {
     String MSM_BACKLIGHT_DIMMER = "/sys/module/msm_fb/parameters/backlight_dimmer";
     String MDSS_BACKLIGHT_DIMMER = "/sys/module/mdss_fb/parameters/backlight_dimmer";
 
-    String[] MIN_BRIGHTNESS_ARRAY = {LM3630_MIN_BRIGHTNESS, MSM_BACKLIGHT_DIMMER};
+    String[] MIN_BRIGHTNESS_ARRAY = {LM3630_MIN_BRIGHTNESS, MSM_BACKLIGHT_DIMMER, ZE551ML_MIN_BRIGHTNESS};
 
     String NEGATIVE_TOGGLE = "/sys/module/cypress_touchkey/parameters/mdnie_shortcut_enabled";
     String REGISTER_HOOK = "/sys/class/misc/mdnie/hook_intercept";
@@ -497,8 +621,8 @@ public interface Constants {
     String GLOVE_MODE = "/sys/devices/virtual/touchscreen/touchscreen_dev/mode";
 
     String[][] SCREEN_ARRAY = {SCREEN_RGB_ARRAY, SCREEN_RGB_CTRL_ARRAY, SCREEN_KCAL_CTRL_NEW_ARRAY, K_GAMMA_ARRAY,
-            GAMMACONTROL_ARRAY, DSI_PANEL_ARRAY, MIN_BRIGHTNESS_ARRAY,
-            {SCREEN_KCAL_CTRL_MIN, SCREEN_HBM, LM3530_BRIGTHNESS_MODE, LM3530_MIN_BRIGHTNESS, LM3530_MAX_BRIGHTNESS,
+             DSI_PANEL_ARRAY, MIN_BRIGHTNESS_ARRAY,SCREEN_HBM,
+            {GAMMACONTROL, SCREEN_KCAL_CTRL_MIN, LM3530_BRIGTHNESS_MODE, LM3530_MIN_BRIGHTNESS, LM3530_MAX_BRIGHTNESS,
                     LM3630_BACKLIGHT_DIMMER, LM3630_BACKLIGHT_DIMMER_THRESHOLD, LM3630_BACKLIGHT_DIMMER_OFFSET,
                     NEGATIVE_TOGGLE, REGISTER_HOOK, MASTER_SEQUENCE, GLOVE_MODE}};
 
@@ -521,10 +645,11 @@ public interface Constants {
 
     // S2W
     String S2W_ONLY = "/sys/android_touch/s2w_s2sonly";
-    String SW2 = "/sys/android_touch2/sweep2wake";
-    String SW2_2 = "/sys/android_touch/sweep2wake";
+    String SW2 = "/sys/android_touch/sweep2wake";
+    String SW3 = "/proc/touchpanel/sweep_wake_enable";
+    String SW2_2 = "/sys/android_touch2/sweep2wake";
 
-    String[] S2W_ARRY = {S2W_ONLY, SW2, SW2_2};
+    String[] S2W_ARRY = {S2W_ONLY, SW2, SW3, SW2_2};
 
     // S2W Leniency
     String LENIENT = "/sys/android_touch/sweep2wake_sensitive";
@@ -553,13 +678,21 @@ public interface Constants {
     String[] DT2S_ARRAY = {DT2S};
 
     // Gesture
-    String GESTURE_CRTL = "/sys/devices/virtual/touchscreen/touchscreen_dev/gesture_ctrl";
+    String GESTURE_CRTL[] = {"/sys/devices/virtual/touchscreen/touchscreen_dev/gesture_ctrl",
+            "/proc/touchpanel/gesture_enable/sdf"};
 
     Integer[] GESTURE_HEX_VALUES = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512};
     String[] GESTURE_STRING_VALUES = {"up", "down", "left", "right", "e", "o", "w", "c", "m", "double_click"};
 
+    //TorchWake
+    String TW = "/proc/touchpanel/flashlight_enable";
+
+    //Musicwake
+    String MW = "/proc/touchpanel/music_enable";
+
     // Camera Gesture
-    String CAMERA_GESTURE = "/sys/android_touch/camera_gesture";
+    String CAMERA_GESTURE[] = {"/sys/android_touch/camera_gesture",
+            "/proc/touchpanel/camera_enable"};
 
     // Pocket mode for Gesture
     String POCKET_MODE = "/sys/android_touch/pocket_mode";
@@ -576,40 +709,81 @@ public interface Constants {
             WAKE_TIMEOUT, WAKE_TIMEOUT_2
     };
 
-    String POWER_KEY_SUSPEND = "/sys/module/qpnp_power_on/parameters/pwrkey_suspend";
+    String []POWER_KEY_SUSPEND = {"/sys/module/qpnp_power_on/parameters/pwrkey_suspend",
+            "sys/devices/virtual/input/lge_touch/dt_wake_pwr_disable"};
 
-    String[][] WAKE_ARRAY = {DT2W_ARRAY, S2W_ARRY, T2W_ARRAY, WAKE_MISC_ARRAY, SLEEP_MISC_ARRAY, WAKE_TIMEOUT_ARRAY,
-            POCKET_MODE_ARRAY, {LENIENT, GESTURE_CRTL, CAMERA_GESTURE, POWER_KEY_SUSPEND}};
+    String WAKE_VIB_STRENGTH = "/sys/android_touch/vib_strength";
+    String WAKE_ST2W_TIME = "/sys/android_touch/sweep_timeout";
+    String WAKE_DT2W_TIMEBETWEENTAPS = "/sys/android_touch/dt2w_time";
+    String WAKE_DT2W_FEATHERX = "/sys/android_touch/dt2w_feather_x";
+    String WAKE_DT2W_FEATHERY = "/sys/android_touch/dt2w_feather_y";
+
+
+    String[][] WAKE_ARRAY = {DT2W_ARRAY, S2W_ARRY, T2W_ARRAY, WAKE_MISC_ARRAY, SLEEP_MISC_ARRAY,  WAKE_TIMEOUT_ARRAY, DT2S_ARRAY,
+            SLEEP_MISC_ARRAY, WAKE_MISC_ARRAY, T2W_ARRAY, POCKET_MODE_ARRAY, GESTURE_CRTL, CAMERA_GESTURE, POWER_KEY_SUSPEND, {LENIENT, POCKET_MODE,
+            WAKE_DT2W_TIMEBETWEENTAPS, WAKE_DT2W_FEATHERX, WAKE_DT2W_FEATHERY, WAKE_VIB_STRENGTH, WAKE_ST2W_TIME, LENIENT }};
 
     String WAKE_VIB_STRENGTH = "/sys/android_touch/vib_strength";
 
     // Sound
-    String SOUND_CONTROL_ENABLE = "/sys/module/snd_soc_wcd9320/parameters/enable_fs";
-    String HIGHPERF_MODE_ENABLE = "/sys/devices/virtual/misc/soundcontrol/highperf_enabled";
-    String HEADPHONE_GAIN = "/sys/kernel/sound_control_3/gpl_headphone_gain";
+    String SOUND_CONTROL_ENABLE[] = {"/sys/module/snd_soc_wcd9320/parameters/enable_fs",
+            "/sys/kernel/sound_control_3/gpl_sound_control_locked"};
+    String WCD_HIGHPERF_MODE_ENABLE[] = {"/sys/module/snd_soc_wcd9320/parameters/high_perf_mode",
+            "/sys/module/snd_soc_wcd9330/parameters/high_perf_mode"};
+    String WCD_SPKR_DRV_WRND = "/sys/module/snd_soc_wcd9320/parameters/spkr_drv_wrnd";
+
+    String FAUX_SOUND = "/sys/kernel/sound_control_3";
+    String HEADPHONE_GAIN[] = {"/sys/kernel/sound_control_3/gpl_headphone_gain",
+            "/sys/kernel/sound_control_3/gpl_headphone_l_gain"};
     String HANDSET_MICROPONE_GAIN = "/sys/kernel/sound_control_3/gpl_mic_gain";
     String CAM_MICROPHONE_GAIN = "/sys/kernel/sound_control_3/gpl_cam_mic_gain";
     String SPEAKER_GAIN = "/sys/kernel/sound_control_3/gpl_speaker_gain";
     String HEADPHONE_POWERAMP_GAIN = "/sys/kernel/sound_control_3/gpl_headphone_pa_gain";
 
+    String FRANCO_SOUND = "/sys/devices/virtual/misc/soundcontrol";
+    String HIGHPERF_MODE_ENABLE = "/sys/devices/virtual/misc/soundcontrol/highperf_enabled";
     String MIC_BOOST = "/sys/devices/virtual/misc/soundcontrol/mic_boost";
     String SPEAKER_BOOST = "/sys/devices/virtual/misc/soundcontrol/speaker_boost";
     String VOLUME_BOOST = "/sys/devices/virtual/misc/soundcontrol/volume_boost";
 
     String[] SPEAKER_GAIN_ARRAY = {SPEAKER_GAIN, SPEAKER_BOOST};
 
-    String[][] SOUND_ARRAY = {SPEAKER_GAIN_ARRAY, {SOUND_CONTROL_ENABLE, HIGHPERF_MODE_ENABLE, HEADPHONE_GAIN, HANDSET_MICROPONE_GAIN,
-            CAM_MICROPHONE_GAIN, HEADPHONE_POWERAMP_GAIN, MIC_BOOST, VOLUME_BOOST}};
+    String[][] SOUND_ARRAY = {SPEAKER_GAIN_ARRAY, SOUND_CONTROL_ENABLE, WCD_HIGHPERF_MODE_ENABLE, HEADPHONE_GAIN, {HIGHPERF_MODE_ENABLE, HANDSET_MICROPONE_GAIN,
+            CAM_MICROPHONE_GAIN, HEADPHONE_POWERAMP_GAIN, MIC_BOOST, VOLUME_BOOST, WCD_SPKR_DRV_WRND}};
 
     // Battery
     String FORCE_FAST_CHARGE = "/sys/kernel/fast_charge/force_fast_charge";
     String BLX = "/sys/devices/virtual/misc/batterylifeextender/charging_limit";
+    String CHARGE_LEVEL = "/sys/kernel/charge_levels";
+    String AC_CHARGE_LEVEL = CHARGE_LEVEL + "/charge_level_ac";
+    String USB_CHARGE_LEVEL = CHARGE_LEVEL + "/charge_level_usb";
 
     String CHARGE_RATE = "sys/kernel/thundercharge_control";
     String CHARGE_RATE_ENABLE = CHARGE_RATE + "/enabled";
     String CUSTOM_CHARGING_RATE = CHARGE_RATE + "/custom_current";
+    String LOW_POWER_VALUE= "sys/module/battery_current_limit/parameters/low_battery_value";
 
-    String[] BATTERY_ARRAY = {FORCE_FAST_CHARGE, BLX, CHARGE_RATE};
+    // C-States
+    String C0STATE = "/sys/module/msm_pm/modes/cpu0/wfi/idle_enabled";
+    String C1STATE = "/sys/module/msm_pm/modes/cpu0/retention/idle_enabled";
+    String C2STATE = "/sys/module/msm_pm/modes/cpu0/standalone_power_collapse/idle_enabled";
+    String C3STATE = "/sys/module/msm_pm/modes/cpu0/power_collapse/idle_enabled";
+
+    // State Notifier added By Eliminater74
+    String STATE_NOTIFIER = "/sys/module/state_notifier/parameters";
+    String STATE_NOTIFIER_ENABLED = STATE_NOTIFIER + "/enabled";
+
+    // Power suspend
+    String POWER_SUSPEND = "/sys/kernel/power_suspend";
+    String POWER_SUSPEND_MODE = POWER_SUSPEND + "/power_suspend_mode";
+    String POWER_SUSPEND_STATE = POWER_SUSPEND + "/power_suspend_state";
+    String POWER_SUSPEND_VERSION = POWER_SUSPEND + "/power_suspend_version";
+
+    // Arch power
+    String ARCH_POWER = "/sys/kernel/sched/arch_power";
+
+    String[] BATTERY_ARRAY = {POWER_SUSPEND_MODE, POWER_SUSPEND_STATE, C0STATE, C1STATE, C2STATE, C3STATE, FORCE_FAST_CHARGE,
+                                CHARGE_RATE, BLX, CHARGE_RATE, ARCH_POWER, STATE_NOTIFIER, CHARGE_LEVEL, LOW_POWER_VALUE};
 
     // I/O
     String IO_INTERNAL_SCHEDULER = "/sys/block/mmcblk0/queue/scheduler";
@@ -619,8 +793,14 @@ public interface Constants {
     String IO_INTERNAL_READ_AHEAD = "/sys/block/mmcblk0/queue/read_ahead_kb";
     String IO_EXTERNAL_READ_AHEAD = "/sys/block/mmcblk1/queue/read_ahead_kb";
 
+    String IO_ROTATIONAL = "/sys/block/mmcblk0/queue/rotational";
+    String IO_STATS = "/sys/block/mmcblk0/queue/iostats";
+    String IO_RANDOM = "/sys/block/mmcblk0/queue/add_random";
+    String IO_AFFINITY = "/sys/block/mmcblk0/queue/rq_affinity";
+
     String[] IO_ARRAY = {IO_INTERNAL_SCHEDULER, IO_EXTERNAL_SCHEDULER, IO_INTERNAL_SCHEDULER_TUNABLE,
-            IO_EXTERNAL_SCHEDULER_TUNABLE, IO_INTERNAL_READ_AHEAD, IO_EXTERNAL_READ_AHEAD};
+            IO_EXTERNAL_SCHEDULER_TUNABLE, IO_INTERNAL_READ_AHEAD, IO_EXTERNAL_READ_AHEAD, IO_ROTATIONAL,
+            IO_STATS, IO_RANDOM, IO_AFFINITY };
 
     // Kernel Samepage Merging
     String KSM_FOLDER = "/sys/kernel/mm/ksm";
@@ -634,6 +814,7 @@ public interface Constants {
     String DEFERRED_TIMER = "deferred_timer";
     String PAGES_TO_SCAN = "pages_to_scan";
     String SLEEP_MILLISECONDS = "sleep_millisecs";
+    String UKSM_CPU_USE = "max_cpu_percentage";
 
     String[] KSM_INFOS = {FULL_SCANS, PAGES_SHARED, PAGES_SHARING, PAGES_UNSHARED, PAGES_VOLATILE};
 
@@ -645,17 +826,29 @@ public interface Constants {
 
     // Virtual Memory
     String VM_PATH = "/proc/sys/vm";
-
-    String[] SUPPORTED_VM = {"dirty_ratio", "dirty_background_ratio", "dirty_expire_centisecs",
-            "dirty_writeback_centisecs", "min_free_kbytes", "overcommit_ratio", "swappiness",
-            "vfs_cache_pressure", "laptop_mode", "extra_free_kbytes"};
+    String VM_DIRTY_RATIO = VM_PATH + "/dirty_ratio";
+    String VM_DIRTY_BACKGROUND_RATIO = VM_PATH + "/dirty_background_ratio";
+    String VM_DIRTY_EXPIRE_CENTISECS = VM_PATH + "/dirty_expire_centisecs";
+    String VM_DIRTY_WRITEBACK_CENTISECS = VM_PATH + "/dirty_writeback_centisecs";
+    String VM_DYNAMIC_DIRTY_WRITEBACK = VM_PATH + "/dynamic_dirty_writeback";
+    String VM_DIRTY_WRITEBACK_SUSPEND_CENTISECS = VM_PATH + "/dirty_writeback_suspend_centisecs";
+    String VM_DIRTY_WRITEBACK_ACTIVE_CENTISECS = VM_PATH + "/dirty_writeback_active_centisecs";
+    String VM_MIN_FREE_KBYTES = VM_PATH + "/min_free_kbytes";
+    String VM_OVERCOMMIT_RATIO = VM_PATH + "/overcommit_ratio";
+    String VM_SWAPPINESS = VM_PATH + "/swappiness";
+    String VM_VFS_CACHE_PRESSURE = VM_PATH + "/vfs_cache_pressure";
+    String VM_LAPTOP_MODE = VM_PATH + "/laptop_mode";
+    String VM_EXTRA_FREE_KBYTES = VM_PATH + "/extra_free_kbytes";
 
     String ZRAM = "/sys/block/zram0";
     String ZRAM_BLOCK = "/dev/block/zram0";
     String ZRAM_DISKSIZE = "/sys/block/zram0/disksize";
     String ZRAM_RESET = "/sys/block/zram0/reset";
 
-    String[] VM_ARRAY = {VM_PATH, ZRAM_BLOCK, ZRAM_DISKSIZE, ZRAM_RESET};
+    String[] VM_ARRAY = {ZRAM_BLOCK, ZRAM_DISKSIZE, ZRAM_RESET, VM_DIRTY_RATIO, VM_DIRTY_BACKGROUND_RATIO,
+            VM_DIRTY_EXPIRE_CENTISECS, VM_DIRTY_WRITEBACK_CENTISECS, VM_MIN_FREE_KBYTES, VM_OVERCOMMIT_RATIO,
+            VM_SWAPPINESS, VM_VFS_CACHE_PRESSURE, VM_LAPTOP_MODE, VM_EXTRA_FREE_KBYTES, VM_DYNAMIC_DIRTY_WRITEBACK,
+            VM_DIRTY_WRITEBACK_SUSPEND_CENTISECS,VM_DIRTY_WRITEBACK_ACTIVE_CENTISECS, LMK_MINFREE, LMK_ADAPTIVE };
 
     // Entropy
     String PROC_RANDOM = "/proc/sys/kernel/random";
@@ -666,33 +859,18 @@ public interface Constants {
 
     String[] ENTROPY_ARRAY = {PROC_RANDOM};
 
-    // Misc
+    //LED
+    String LED_SPEED_GREEN = "/sys/class/leds/green/rate";
 
-    // Vibration
-    Object[][] VIBRATION_ARRAY = {
-            // {Path, Max, Min}
-            {"/sys/class/timed_output/vibrator/amp", 100, 0},
-            {"/sys/class/timed_output/vibrator/level", 31, 12},
-            {"/sys/class/timed_output/vibrator/pwm_value", 100, 0}, // Read MAX MIN from sys
-            {"/sys/class/timed_output/vibrator/pwm_value_1p", 99, 53},
-            {"/sys/class/timed_output/vibrator/voltage_level", 3199, 1200},
-            {"/sys/class/timed_output/vibrator/vtg_level", 31, 12}, // Read MAX MIN from sys
-            {"/sys/class/timed_output/vibrator/vmax_mv", 3596, 116},
-            {"/sys/class/timed_output/vibrator/vmax_mv_strong", 3596, 116}, // Needs VIB_LIGHT path
-            {"/sys/devices/platform/tspdrv/nforce_timed", 127, 1},
-            {"/sys/devices/i2c-3/3-0033/vibrator/vib0/vib_duty_cycle", 100, 25}, // Needs enable path
-            {"/sys/module/qpnp_vibrator/parameters/vib_voltage", 31, 12},
-            {"/sys/vibrator/pwmvalue", 127, 0}
-    };
+    String LED_ACTIVE = "/sys/class/leds/green/blink";
 
-    String VIB_LIGHT = "/sys/devices/virtual/timed_output/vibrator/vmax_mv_light";
-    String VIB_ENABLE = "/sys/devices/i2c-3/3-0033/vibrator/vib0/vib_enable";
-
-    // Wakelock
+    // Wakelocks
     String[] SMB135X_WAKELOCKS = {
             "/sys/module/smb135x_charger/parameters/use_wlock",
             "/sys/module/wakeup/parameters/enable_smb135x_wake_ws"
     };
+
+    String BLUESLEEP_WAKELOCK = "/sys/module/wakeup/parameters/enable_bluesleep_ws";
 
     String SENSOR_IND_WAKELOCK = "/sys/module/wakeup/parameters/enable_si_ws";
     String MSM_HSIC_HOST_WAKELOCK = "/sys/module/wakeup/parameters/enable_msm_hsic_ws";
@@ -714,13 +892,61 @@ public interface Constants {
 
     String WLAN_RX_WAKELOCK_DIVIDER = "/sys/module/bcmdhd/parameters/wl_divide";
     String MSM_HSIC_WAKELOCK_DIVIDER = "/sys/module/xhci_hcd/parameters/wl_divide";
+    String BCMDHD_WAKELOCK_DIVIDER = "/sys/module/bcmdhd/parameters/wl_divide";
+
+    String[][] WAKELOCK_ARRAY = {SMB135X_WAKELOCKS, WLAN_RX_WAKELOCKS, WLAN_CTRL_WAKELOCKS, WLAN_WAKELOCKS, {
+            SENSOR_IND_WAKELOCK, MSM_HSIC_HOST_WAKELOCK, WLAN_RX_WAKELOCK_DIVIDER,
+            MSM_HSIC_WAKELOCK_DIVIDER, BCMDHD_WAKELOCK_DIVIDER, BLUESLEEP_WAKELOCK}};
+
+
+    // Misc
+
+    // Vibration
+    String[] VIBRATION_ARRAY = {
+            "/sys/module/qpnp_vibrator/parameters/vib_voltage",
+            "/sys/vibrator/pwmvalue",
+            "/sys/class/timed_output/vibrator/amp",
+            "/sys/class/timed_output/vibrator/level",
+            "/sys/class/timed_output/vibrator/vtg_level",
+            "/sys/devices/platform/tspdrv/nforce_timed",
+            "/sys/class/timed_output/vibrator/pwm_value",
+            "/sys/devices/i2c-3/3-0033/vibrator/vib0/vib_duty_cycle",
+            "/sys/devices/virtual/timed_output/vibrator/voltage_level",
+            "/sys/devices/virtual/timed_output/vibrator/pwm_value_1p",
+            "/sys/devices/virtual/timed_output/vibrator/vmax_mv_strong",
+            "/sys/devices/virtual/timed_output/vibrator/vmax_mv"
+    };
+
+    int[][] VIBRATION_MAX_MIN_ARRAY = {
+            {31, 12},
+            {127, 0},
+            {100, 0},
+            {31, 12},
+            {31, 12}, // Read MAX MIN from sys
+            {127, 1},
+            {100, 0}, // Read MAX MIN from sys
+            {100, 25}, // Needs enable path
+            {3199, 1200},
+            {99, 53},
+            {3596, 116}, // Needs VIB_LIGHT path
+            {3596, 116}
+    };
+
+    String VIB_LIGHT = "/sys/devices/virtual/timed_output/vibrator/vmax_mv_light";
+    String VIB_ENABLE = "/sys/devices/i2c-3/3-0033/vibrator/vib0/vib_enable";
 
     // Logging
     String LOGGER_MODE = "/sys/kernel/logger_mode/logger_mode";
     String LOGGER_ENABLED = "/sys/module/logger/parameters/enabled";
     String LOGGER_LOG_ENABLED = "/sys/module/logger/parameters/log_enabled";
+    String LOGD = "/system/bin/logd";
 
-    String[] LOGGER_ARRAY = {LOGGER_MODE, LOGGER_ENABLED, LOGGER_LOG_ENABLED};
+    String[] LOGGER_ARRAY = {LOGGER_MODE, LOGGER_ENABLED, LOGGER_LOG_ENABLED, LOGD, "start", "stop"};
+
+    // BCL
+    String[] BCL_ARRAY = {"/sys/devices/qcom,bcl.38/mode","/sys/devices/qcom,bcl.39/mode", "/sys/devices/soc.0/qcom,bcl.60/mode" };
+
+    String BCL_HOTPLUG = "/sys/module/battery_current_limit/parameters/bcl_hotplug_enable";
 
     // CRC
     String[] CRC_ARRAY = {
@@ -735,25 +961,29 @@ public interface Constants {
     };
     String DYNAMIC_FSYNC = "/sys/kernel/dyn_fsync/Dyn_fsync_active";
 
+    // Sched Features
     // Gentle fair sleepers
     String GENTLE_FAIR_SLEEPERS = "/sys/kernel/sched/gentle_fair_sleepers";
 
-    // Power suspend
-    String POWER_SUSPEND = "/sys/kernel/power_suspend";
-    String POWER_SUSPEND_MODE = POWER_SUSPEND + "/power_suspend_mode";
-    String POWER_SUSPEND_STATE = POWER_SUSPEND + "/power_suspend_state";
-    String POWER_SUSPEND_VERSION = POWER_SUSPEND + "/power_suspend_version";
+    // MSM USB OTG
+    String MSM_USB_OTG = "/sys/module/msm_otg/parameters/otg_hack_enable";
 
     // Network
     String TCP_AVAILABLE_CONGESTIONS = "/proc/sys/net/ipv4/tcp_available_congestion_control";
     String HOSTNAME_KEY = "net.hostname";
+    String ADB_OVER_WIFI = "service.adb.tcp.port";
 
-    Object[][] MISC_ARRAY = {
+    String GETENFORCE = "getenforce";
+    String SETENFORCE = "setenforce";
+
+    // Switch Buttons
+    String SWITCH_BUTTONS = "/proc/s1302/key_rep";
+
+    String[][] MISC_ARRAY = {
             VIBRATION_ARRAY,
-            {VIB_LIGHT, VIB_ENABLE, SENSOR_IND_WAKELOCK, MSM_HSIC_HOST_WAKELOCK, WLAN_RX_WAKELOCK_DIVIDER,
-                    MSM_HSIC_WAKELOCK_DIVIDER, LOGGER_ENABLED, DYNAMIC_FSYNC, GENTLE_FAIR_SLEEPERS, POWER_SUSPEND_MODE,
-                    POWER_SUSPEND_STATE, TCP_AVAILABLE_CONGESTIONS, HOSTNAME_KEY},
-            SMB135X_WAKELOCKS, WLAN_RX_WAKELOCKS, WLAN_CTRL_WAKELOCKS, WLAN_WAKELOCKS, CRC_ARRAY, FSYNC_ARRAY};
+            {VIB_LIGHT, VIB_ENABLE, SENSOR_IND_WAKELOCK, LOGGER_ENABLED, DYNAMIC_FSYNC, GENTLE_FAIR_SLEEPERS, BCL_HOTPLUG,
+                    POWER_SUSPEND_STATE, TCP_AVAILABLE_CONGESTIONS, HOSTNAME_KEY, ADB_OVER_WIFI, GETENFORCE, SETENFORCE, LED_SPEED_GREEN, LED_ACTIVE, SWITCH_BUTTONS },
+            LOGGER_ARRAY, CRC_ARRAY, FSYNC_ARRAY, BCL_ARRAY};
 
     // Build prop
     String BUILD_PROP = "/system/build.prop";

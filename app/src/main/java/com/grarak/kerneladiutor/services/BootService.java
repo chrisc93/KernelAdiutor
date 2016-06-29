@@ -44,9 +44,14 @@ import com.grarak.kerneladiutor.fragments.kernel.SoundFragment;
 import com.grarak.kerneladiutor.fragments.kernel.ThermalFragment;
 import com.grarak.kerneladiutor.fragments.kernel.VMFragment;
 import com.grarak.kerneladiutor.fragments.kernel.WakeFragment;
+import com.grarak.kerneladiutor.fragments.kernel.WakeLockFragment;
 import com.grarak.kerneladiutor.utils.Constants;
 import com.grarak.kerneladiutor.utils.Utils;
 import com.grarak.kerneladiutor.utils.database.CommandDB;
+import com.grarak.kerneladiutor.utils.kernel.CPUVoltage;
+import com.grarak.kerneladiutor.utils.kernel.CoreControl;
+import com.grarak.kerneladiutor.utils.kernel.Screen;
+import com.grarak.kerneladiutor.utils.tools.UpdateChecker;
 import com.kerneladiutor.library.root.RootUtils;
 
 import java.util.ArrayList;
@@ -61,7 +66,7 @@ public class BootService extends Service {
 
     private final int id = 1;
     private NotificationManager mNotifyManager;
-    private NotificationCompat.Builder mBuilder;
+    private NotificationCompat.Builder mBuilder, mUpdate;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -79,11 +84,17 @@ public class BootService extends Service {
         final List<String> applys = new ArrayList<>();
         final List<String> plugins = new ArrayList<>();
 
+        CPUVoltage.storeVoltageTable(this);
+
+        if (Screen.isScreenAutoHBMActive(this) && Screen.hasScreenHBM()) {
+            startService(new Intent(this, AutoHighBrightnessModeService.class));
+        }
+
         Class[] classes = {BatteryFragment.class, CPUFragment.class, CPUHotplugFragment.class,
                 CPUVoltageFragment.class, EntropyFragment.class, GPUFragment.class, IOFragment.class,
                 KSMFragment.class, LMKFragment.class, MiscFragment.class,
-                ScreenFragment.class, SoundFragment.class, ThermalFragment.class,
-                VMFragment.class, WakeFragment.class
+                ScreenFragment.class, SoundFragment.class, ThermalFragment.class, WakeLockFragment.class,
+                VMFragment.class, WakeFragment.class, CoreControl.class
         };
 
         for (Class mClass : classes)
@@ -143,7 +154,7 @@ public class BootService extends Service {
         boolean hasRoot = false;
         boolean hasBusybox = false;
         if (RootUtils.rooted()) hasRoot = RootUtils.rootAccess();
-        if (hasRoot) hasBusybox = RootUtils.busyboxInstalled();
+        if (hasRoot) hasBusybox = RootUtils.hasAppletSupport();
         RootUtils.closeSU();
 
         String message = getString(R.string.apply_on_boot_failed);
@@ -191,6 +202,9 @@ public class BootService extends Service {
 
         su.close();
         toast(getString(R.string.apply_on_boot_finished));
+        if (Utils.getBoolean("updatecheck", true, getApplicationContext())) {
+            bootCheckForAppUpdate();
+        }
     }
 
     private void log(String log) {
@@ -198,13 +212,45 @@ public class BootService extends Service {
     }
 
     private void toast(final String message) {
-        if (Utils.getBoolean("applyonbootshowtoast", true, getApplicationContext()))
+        if (Utils.getBoolean("applyonbootshowtoast", true, this))
             hand.post(new Runnable() {
                 @Override
                 public void run() {
                     Utils.toast(getString(R.string.app_name) + ": " + message, BootService.this);
                 }
             });
+    }
+
+    private void bootCheckForAppUpdate() {
+        log("Checking for app update...");
+
+        UpdateChecker.checkForUpdate(new UpdateChecker.Callback() {
+            @Override
+            public void onSuccess(final UpdateChecker.AppUpdateData appUpdateData) {
+                log("update check onSuccess");
+
+                if (UpdateChecker.isOldVersion(appUpdateData)) {
+                    mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    mUpdate = new NotificationCompat.Builder(BootService.this);
+                    mUpdate.setContentTitle(getString(R.string.update_available))
+                            .setContentText(getString(R.string.update_available_open_app))
+                            .setSmallIcon(R.drawable.ic_launcher_preview);
+
+                    TaskStackBuilder updatestackBuilder = TaskStackBuilder.create(BootService.this);
+                    updatestackBuilder.addParentStack(MainActivity.class);
+                    updatestackBuilder.addNextIntent(new Intent(BootService.this, MainActivity.class));
+                    PendingIntent updatependingIntent = updatestackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                    mUpdate.setContentIntent(updatependingIntent);
+
+                    mNotifyManager.notify(id, mUpdate.build());
+                }
+            }
+
+            @Override
+            public void onError() {
+                log("update check onSuccess");
+            }
+        } , getString(R.string.APP_UPDATE_URL));
     }
 
 }

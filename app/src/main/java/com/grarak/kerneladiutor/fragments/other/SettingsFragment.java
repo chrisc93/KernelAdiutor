@@ -20,11 +20,14 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 
@@ -43,6 +46,9 @@ import com.grarak.kerneladiutor.utils.Utils;
 import com.grarak.kerneladiutor.utils.database.ProfileDB;
 import com.kerneladiutor.library.root.RootUtils;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +56,8 @@ import java.util.List;
  * Created by willi on 09.03.15.
  */
 public class SettingsFragment extends RecyclerViewFragment {
+
+    ProgressDialog sysfsDialog = null;
 
     @Override
     public boolean showApplyOnBoot() {
@@ -65,9 +73,11 @@ public class SettingsFragment extends RecyclerViewFragment {
             forceenglishlanguageInit();
         if (Constants.VERSION_NAME.contains("beta")) betainfoInit();
         if (Utils.hasCMSDK()) profileTileInit();
+        updatecheckInit();
         applyonbootInit();
         debuggingInit();
         securityInit();
+        perappInit();
         showSectionsInit();
     }
 
@@ -134,6 +144,30 @@ public class SettingsFragment extends RecyclerViewFragment {
         });
 
         addView(mShowProfileTileCard);
+    }
+
+    private void updatecheckInit() {
+        DDivider mUpdateCheckDividerCard = new DDivider();
+        mUpdateCheckDividerCard.setText(getString(R.string.update_check));
+
+        addView(mUpdateCheckDividerCard);
+
+        if (!Utils.isTV(getActivity())) {
+            SwitchCardView.DSwitchCard mUpdateCheckCard = new SwitchCardView.DSwitchCard();
+            mUpdateCheckCard.setTitle(getString(R.string.update_check));
+            mUpdateCheckCard.setDescription(getString(R.string.update_check_summary));
+            mUpdateCheckCard.setChecked(Utils.getBoolean("updatecheck", true, getActivity()));
+            mUpdateCheckCard.setOnDSwitchCardListener(new SwitchCardView.DSwitchCard.OnDSwitchCardListener() {
+                @Override
+                public void onChecked(SwitchCardView.DSwitchCard dSwitchCard, boolean checked) {
+                    Utils.saveBoolean("updatecheck", checked, getActivity());
+                }
+            });
+
+            addView(mUpdateCheckCard);
+        }
+
+
     }
 
     private void applyonbootInit() {
@@ -269,6 +303,100 @@ public class SettingsFragment extends RecyclerViewFragment {
         });
 
         addView(mDmesgCard);
+
+        CardViewItem.DCardView mDumpSysFs = new CardViewItem.DCardView();
+        mDumpSysFs.setTitle(getString(R.string.dump_sysfs));
+        mDumpSysFs.setDescription(getString(R.string.dump_sysfs_summary));
+        mDumpSysFs.setOnDCardListener(new CardViewItem.DCardView.OnDCardListener() {
+            @Override
+            public void onClick(CardViewItem.DCardView dCardView) {
+                sysfsDialog = ProgressDialog.show(getActivity(), getString(R.string.dump_sysfs_dialog_title),
+                        getString(R.string.dump_sysfs_dialog_summary), true);
+                Thread t = new Thread(new Runnable()
+                {
+                    public void run()
+                    {
+                        dumpsysfs();
+                    }
+                });
+                t.start();
+            }
+        });
+
+        addView(mDumpSysFs);
+
+    }
+
+    private void dumpsysfs() {
+        String arrays[][] = {Constants.CPU_ARRAY, Constants.CPU_VOLTAGE_ARRAY, Constants.BATTERY_ARRAY, Constants.IO_ARRAY, Constants.VM_ARRAY};
+        String twodarrays[][][] = {Constants.CPU_HOTPLUG_ARRAY, Constants.THERMAL_ARRAYS, Constants.SCREEN_ARRAY, Constants.WAKE_ARRAY, Constants.SOUND_ARRAY, Constants.WAKELOCK_ARRAY, Constants.MISC_ARRAY};
+        // loop through each array in the constants file. These contain all the other arrays.
+        // have to do this once for the 1d arrays and again for the 2 arrays
+        try {
+            File sysfsdump = new File(getActivity().getFilesDir(), "sysfsdump.txt");
+            if (sysfsdump.exists()) {
+                sysfsdump.delete();
+            }
+            FileWriter output = new FileWriter(sysfsdump);
+            for (int i = 0; i < arrays.length; i++) {
+                for (int a = 0; a < arrays[i].length; a++) {
+                    if (Utils.existFile(arrays[i][a]) && !arrays[i][a].contains("/system/bin")) {
+                        output.write(sysfsrecord(arrays[i][a]));
+                    }
+                }
+            }
+            for (int i = 0; i < twodarrays.length; i++) {
+                for (int a = 0; a < twodarrays[i].length; a++) {
+                    for (int b = 0; b < twodarrays[i][a].length; b++) {
+                        if (Utils.existFile(twodarrays[i][a][b]) && !twodarrays[i][a][b].contains("/system/bin")) {
+                            output.write(sysfsrecord(twodarrays[i][a][b]));
+                        }
+                    }
+                }
+            }
+            output.flush();
+            output.close();
+
+            sysfsDialog.dismiss();
+
+            // Should send file to intent here to share it.
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.setType("application/text");
+
+            Uri uri = FileProvider.getUriForFile(getActivity(), "com.grarak.kerneladiutor.fileprovider", sysfsdump);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+            shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            startActivity(Intent.createChooser(shareIntent, "Share file"));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String sysfsrecord (String file) {
+        String ret = "";
+        File sysfspath = new File(file);
+        if (sysfspath.isDirectory()) {
+            Log.i(Constants.TAG, "Dir: " + file);
+            String path = file;
+            ret = ret + "Dir: " + path + "\n";
+            File dir = new File(path);
+            File[] directoryListing = dir.listFiles();
+            if (directoryListing != null) {
+                for (File child : directoryListing) {
+                    if (!child.isDirectory()) {
+                        Log.i(Constants.TAG, "File: " + child + " | Value: " + Utils.readFile(child.toString()));
+                        ret = ret + "File: " + child + " | Value: " + Utils.readFile(child.toString()) + "\n";
+                    }
+                }
+            }
+        } else {
+            Log.i(Constants.TAG, "Path: " + file + " | Value: " + Utils.readFile(file));
+            ret = ret + "Path: " + file + " | Value: " + Utils.readFile(file) + "\n";
+        }
+        return ret;
     }
 
     private class Execute extends AsyncTask<String, Void, Void> {
@@ -409,6 +537,26 @@ public class SettingsFragment extends RecyclerViewFragment {
                         Utils.saveString("password", "", getActivity());
                     }
                 }).show();
+    }
+
+    private void perappInit(){
+        DDivider mPerAppDividerCard = new DDivider();
+        mPerAppDividerCard.setText(getString(R.string.per_app));
+        addView(mPerAppDividerCard);
+
+        SwitchCardView.DSwitchCard mPerAppToastCard = new SwitchCardView.DSwitchCard();
+        mPerAppToastCard.setTitle(getString(R.string.per_app_toast));
+        mPerAppToastCard.setDescription(getString(R.string.per_app_toast_summary));
+        mPerAppToastCard.setChecked(Utils.getBoolean("Per_App_Toast", false, getActivity()));
+        mPerAppToastCard.setOnDSwitchCardListener(new SwitchCardView.DSwitchCard.OnDSwitchCardListener() {
+            @Override
+            public void onChecked(SwitchCardView.DSwitchCard dSwitchCard, boolean checked) {
+                Utils.saveBoolean("Per_App_Toast", checked, getActivity());
+            }
+        });
+
+        addView(mPerAppToastCard);
+
     }
 
     private void showSectionsInit() {

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="app_name">Kernel Adiutor</string>
+    <string name="app_name">Kernel Adiutor-Mod</string>
     <string name="root_waiting">Waiting for root access</string>
     <string name="no_root">No root available</string>
-    <string name="no_busybox">No busybox available</string>
+    <string name="no_busybox">No busybox or toybox available</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="current_value_not_supported">Current value is not supported</string>
@@ -25,6 +25,7 @@
     <string name="no_permission">No permission</string>
     <string name="select_file">Select %s?</string>
     <string name="no_files">No files in this path.</string>
+    <string name="copy">Copy</string>
 
     <!-- EditText -->
     <string name="save">Save</string>
@@ -42,14 +43,20 @@
     <string name="mv">mV</string>
     <string name="kb">kB</string>
     <string name="ms">ms</string>
+    <string name="cs">cs</string>
     <string name="mb">MB</string>
     <string name="min">min</string>
     <string name="sec">sec</string>
     <string name="ma">mA</string>
+    <string name="microsec">μs</string>
+    <string name="pixel">px</string>
+
+    <string name="cores">cores</string>
 
     <!-- Special signs -->
     <string name="minus" translatable="false">-</string>
     <string name="plus" translatable="false">+</string>
+    <string name="percent" translatable="false">%</string>
 
     <!-- Headers -->
     <string name="information">Information</string>
@@ -69,11 +76,12 @@
     <string name="screen">Screen</string>
     <string name="wake_controls">Wake Controls</string>
     <string name="sound">Sound</string>
-    <string name="battery">Battery</string>
+    <string name="battery">Power and Battery</string>
     <string name="io_scheduler">I/O Scheduler</string>
     <string name="ksm">Kernel Samepage Merging</string>
     <string name="low_memory_killer">Low Memory Killer</string>
     <string name="virtual_memory">Virtual Memory</string>
+    <string name="wakelocks">Wake Locks</string>
     <string name="entropy">Entropy</string>
     <string name="misc_controls">Misc Controls</string>
     <string name="plugins">Plugins</string>
@@ -82,8 +90,17 @@
     <string name="profile">Profile</string>
     <string name="recovery" translatable="false">Recovery</string>
     <string name="initd">Init.d</string>
+    <string name="startup_commands">Start-Up Commands</string>
+    <string name="startup_commands_list">Start-Up Commands List:</string>
+    <string name="startup_commands_list_info">Tap on an individual command to choose between copying it or deleteing it from the database.</string>
+    <string name="all_startup_commands">Tap this card to copy or delete all saved startup settings</string>
+    <string name="startup_commands_delete_all">Are you sure you want to delete all Start-up Commands?</string>
+    <string name="startup_commands_delete_all_yes">Yes</string>
+    <string name="startup_commands_delete_all_no">No</string>
+    <string name="startup_commands_none">No startup Commands Found</string>
     <string name="settings">Settings</string>
-    <string name="faq">FAQ</string>
+    <string name="faq">FAQ</string> 
+    <string name="corecontrol">Core Control</string>
     <string name="about_us">About Us</string>
 
     <!-- Frequency Table -->
@@ -97,6 +114,7 @@
 
     <!-- Kernel Information -->
     <string name="kernel_version">Kernel Version</string>
+    <string name="binning_information">Binning Information</string>
     <string name="cpu_information">CPU Information</string>
     <string name="memory_information">Memory Information</string>
 
@@ -106,6 +124,7 @@
     <string name="current_freq">Current Frequency</string>
     <string name="core">Core %d</string>
     <string name="offline">Offline</string>
+    <string name="cpu_per_core_control">Enable Per Core Control</string>
     <string name="cpu_max_freq">CPU Maximum Frequency</string>
     <string name="cpu_max_freq_summary">Set the maximum frequency the CPU scales up to.</string>
     <string name="cpu_min_freq">CPU Minimum Frequency</string>
@@ -135,6 +154,8 @@
     <string name="interval_summary">Minimum interval a CPU is boosted.</string>
     <string name="sync_threshold">Sync Threshold</string>
     <string name="sync_threshold_summary">When CPU loading crosses the preset threshold, the current CPU is raised to this frequency.</string>
+    <string name="input_boost">Input Boost</string>
+    <string name="input_boost_summary">Boost the CPU when a touch is detected</string>
     <string name="input_interval">Input Interval</string>
     <string name="input_interval_summary">Minimum interval a CPU is boosted when input is detected.</string>
     <string name="input_boost_freq">Input Boost Frequency</string>
@@ -144,13 +165,42 @@
     <string name="wakeup_boost_summary">Wakeup Boost is similar to input boost but it occurs when screen is turned on.</string>
     <string name="hotplug_boost">Hotplug Boost</string>
     <string name="hotplug_boost_summary">Hotplug Boost is similar to input boost but it occurs when CPUs go online.</string>
+    <string name="cpu_msm_limiter">MSM Limiter</string>
+    <string name="cpu_msm_limiter_summary">Enable MSM Limiter</string>
+    <string name="cpu_msm_limiter_resume_max">Max Frequency</string>
+    <string name="cpu_msm_limiter_resume_max_summary">Set the maximum frequency all CPUs scales up to.</string>
+    <string name="cpu_msm_limiter_resume_max_summary_per_core">Set the maximum frequency each CPU scales up to.</string>
+    <string name="cpu_msm_limiter_suspend_min">Suspend Min Frequency</string>
+    <string name="cpu_msm_limiter_suspend_min_summary">Set the minimum frequency all CPUs scales down to during suspend.</string>
+    <string name="cpu_msm_limiter_suspend_min_summary_per_core">Set the minimum frequency each CPU scales down to.</string>
+    <string name="cpu_msm_limiter_suspend_max">Suspend Max Frequency</string>
+    <string name="cpu_msm_limiter_suspend_max_summary">Set the maximum frequency all CPUs scales up to during suspend.</string>
+    <string name="cpu_msm_limiter_suspend_max_summary_per_core">Set the maximum frequency each CPU scales up to.</string>
+    <string name="cpu_msm_limiter_resume_max_per_core">CPU %d: Maximum Frequency</string>
+    <string name="cpu_msm_limiter_suspend_max_per_core">CPU %d: Max Suspend Frequency</string>
+    <string name="cpu_msm_limiter_suspend_min_per_core">CPU %d: Min Suspend Frequency</string>
+    <string name="cpu_msm_limiter_governor_per_core">CPU %d: Governor</string>
+    <string name="cpu_governor_tunables_per_core_header">Edit Tunables for each core\'s Governor</string>
+    <string name="cpu_governor_tunables_per_core_summary">The various configuration items which are Governor-dependent. Note that if a Governor is selected for multiple cores, it\'s tunables are shared and are not customizable for each core. When they\'re changed for one core below the changes will reflect in the other cores that utilize it.</string>
+    <string name="cpu_governor_tunables_per_core_tunable">Core %d tuneables. Governor:</string>
+    <string name="alu_t_boostms">Alu Touch Input Boost</string>
+    <string name="alu_t_boostms_summary">Minimum interval a CPU is boosted when input is detected.</string>
+    <string name="alu_t_boostfreq">Alu Touch Input Boost Frequency</string>
+    <string name="alu_t_boostfreq_summary">This will boost your minimum CPU speed to the selected frequency when you touch the screen or press a button.</string>
+    <string name="alu_t_boostmii">Alu Touch Min Input Interval</string>
+    <string name="alu_t_boostmii_summary">Minimum Input Interval between touches.</string>
+    <string name="alu_t_boostcpus">Alu Touch Maximum CPUs Boosted</string>
+    <string name="alu_t_boostcpus_summary">Try to group tasks into the least cores possible. The higher the value, the more aggressive the grouping.</string>
+
 
     <!-- CPU Voltage -->
     <string name="global_offset">Global Offset</string>
     <string name="override_vmin">Override Minimum Voltage</string>
     <string name="override_vmin_summary">Disable to remove manufacturer limits on undervolting</string>
-
+    <string name="non_default_reference">Default Voltages not saved, using current voltages as reference. Please reboot for accurate refernce values.</string>
+    <string name="voltages_toast_notification">Values in parenthesis show your change from the reference values.</string>
     <!-- CPU Hotplug -->
+    <string name="no_enable_toggle">Warning: This Hotplug has no enable or disable toggle. Be aware that having more than one hotplug enabled can cause erratic behavior.</string>
     <string name="mpdecision">MPDecision</string>
     <string name="mpdecision_summary">Qualcomm\'s hotplugging solution. You might get problems with changing frequencies when this is enabled.</string>
     <string name="intelliplug">IntelliPlug</string>
@@ -170,6 +220,8 @@
     <string name="eco_mode_summary">Battery saving mode for IntelliPlug.</string>
     <string name="touch_boost">Touch Boost</string>
     <string name="touch_boost_summary">This will boost your minimum CPU speed if you touch the screen or press a button.</string>
+    <string name="sched_boost">Sched Boost</string>
+    <string name="sched_boost_summary">Enables aggressive thread migration to big cores for high preformance, consumes more power.</string>
     <string name="hysteresis">Hysteresis Value</string>
     <string name="hysteresis_summary">The lower it is, the faster response.</string>
     <string name="threshold">Threshold Value</string>
@@ -181,6 +233,14 @@
     <string name="cpus_boosted_summary">Maximum number of CPUs boosted at the same time.</string>
     <string name="min_cpu_online">Minimum CPU Online</string>
     <string name="min_cpu_online_summary">Minimum number of CPUs that will be always online.</string>
+    <string name="minlittle">Minimum Little CPUs Online</string>
+    <string name="minlittle_summary">Minimum number of Little CPUs that will be always online.</string>
+    <string name="maxlittle">Maximum Little CPUs Online</string>
+    <string name="maxlittle_summary">Maximum number of Little CPUs that will be always online.</string>
+    <string name="minbig">Minimum Big CPUs Online</string>
+    <string name="minbig_summary">Minimum number of Big CPUs that will be always online.</string>
+    <string name="maxbig">Maximum Big CPUs Online</string>
+    <string name="maxbig_summary">Maximum number of Big CPUs that will be always online.</string>
     <string name="max_cpu_online">Maximum CPU Online</string>
     <string name="max_cpu_online_summary">Maximum number of CPUs that will be always online.</string>
     <string name="max_cores_screen_off">Max Cores Screen Off</string>
@@ -192,6 +252,18 @@
     <string name="down_lock_duration">Down Lock Duration</string>
     <string name="down_lock_duration_summary">Minimum interval a CPU is kept online.</string>
     <string name="fshift">FShift</string>
+    <string name="dyn_plug">Dyn_Plug</string>
+    <string name="dyn_plug_summary">An in-kernel replacement for Qualcomm\'s MPDecision. Developed by Stratos Karafotis.</string>
+    <string name="auto_hotplug">ARM Auto_hotplug</string>
+    <string name="auto_hotplug_summary">An in-kernel replacement for Qualcomm\'s MPDecision. Developed by Will Tisdale (Thalamus).</string>
+    <string name="enable_load_treshold">Enable Load Threshold</string>
+    <string name="enable_load_treshold_summary">Load at which an extra CPU is put online.</string>
+    <string name="enable_all_load_treshold">Enable All Load Threshold</string>
+    <string name="enable_all_load_treshold_summary">Load at which all CPUs are enabled.</string>
+    <string name="disable_load_treshold">Disable Load Threshold</string>
+    <string name="disable_load_treshold_summary">Load at which a CPU is taken offline.</string>
+    <string name="sampling_periods">Minimum Sampling Period</string>
+    <string name="sampling_periods_summary">Sampling rate in milliseconds, converted to jiffies at runtime.</string>
     <string name="blu_plug">Blu_Plug</string>
     <string name="blu_plug_summary">An in-kernel replacement for Qualcomm\'s MPDecision. Developed by Code_Blue team.</string>
     <string name="powersaver_mode">Powersaver Mode</string>
@@ -254,6 +326,9 @@
     <string name="thunderplug_summary">An in-kernel replacement for Qualcomm\'s MPDecision. Developed by varunchitre15.</string>
     <string name="min_cores_screen_off">Min Cores Screen Off</string>
     <string name="min_cores_screen_off_summary">Minimum number of cores online when screen is off.</string>
+    <string name="hp_style">Hotplug Style</string>
+    <string name="per_core_hp">Per-Core-Hotplug</string>
+    <string name="load_balancer">Load Balancer</string>
     <string name="endurance_level">Endurance Level</string>
     <string name="endurance_level_summary">A power saving profile.</string>
     <string name="quad_core_mode">Quad-Core mode</string>
@@ -272,6 +347,38 @@
     <string name="cycle_down_summary">Cycles to wait after the last hotplug event to unplug another core.</string>
     <string name="cycle_up">Cycle Up</string>
     <string name="cycle_up_summary">Cycles to wait after the last hotplug event to plug another core.</string>
+    <string name="lazyplug">Lazyplug</string>
+    <string name="lazyplug_summary">An in-kernel replacement for Qualcomm\'s MPDecision. Based on IntelliPlug by faux123. Developed by arter97.</string>
+    <string name="lazyplugprofile_summary">Select a preset profile</string>
+    <string name="eco_extreme">Extreme Eco Mode</string>
+    <string name="nrpossiblecores_limits">Limits the number of possible cores</string>
+    <string name="msm_sleeper">MSM Sleeper</string>
+    <string name="msm_sleeper_summary">A customizable hotplug</string>
+    <string name="msm_sleeper_up_thresh">Threshold before onlining another core</string>
+    <string name="msm_sleeper_max_online">Max Online Cores</string>
+    <string name="msm_sleeper_suspend_max_online">Max Online Cores during suspend</string>
+    <string name="msm_sleeper_up_count_max">Amount of time threshold needs to be exceeded before online-ing a core</string>
+    <string name="msm_sleeper_down_count_max">Amount of time threshold needs to be below before offline-ing a core</string>
+    <string name="bricked_nwns">Runqueue Threshold Hotplug CPU%d</string>
+    <string name="bricked_nwns_hotplug">If this threshold is reached, CPU%d will be hotplugged.</string>
+    <string name="bricked_nwns_unplug">If this threshold is reached, CPU%d will be unplugged.</string>
+    <string name="bricked_twts">Time Threshold Hotplug CPU%d</string>
+    <string name="bricked_twts_hotplug">This amount of time must have passed for CPU%d to be hotplugged.</string>
+    <string name="bricked_twts_unplug">This amount of time must have passed for CPU%d to be unplugged.</string>
+    <string name="state_helper">State Helper</string>
+    <string name="state_helper_summary">A new hotplug by Neobuddy89</string>
+    <string name="state_helper_max_cpus_online">Maximum number of CPUs onlined while screen on.</string>
+    <string name="state_helper_max_cpus_suspend">Maximum number of CPUs onlined while screen off.</string>
+    <string name="state_helper_batt_level_eco">Battery Level Economical</string>
+    <string name="state_helper_batt_level_eco_summary">Economical level core limiting. Limits max cpus online at this battery percentage.</string>
+    <string name="state_helper_batt_level_cri">Battery Level Critical</string>
+    <string name="state_helper_batt_level_cri_summary">Critical level core limiting. Limits max cpus online at this battery percentage.</string>
+    <string name="state_helper_max_cpus_eco">Max CPUs online after reaching Economical Battery level</string>
+    <string name="state_helper_max_cpus_cri">Max CPUs online after reaching Critical Battery level</string>
+    <string name="bch">Boeffla Config Helper</string>
+    <string name="bch_summary">Lord Boefflas solution for keeping big cores alive</string>
+    <string name="msm_max_cores">Maximum cores to be allowed online.</string>
+    <string name="msmperformance">MSM Performance Hotplug</string>
 
     <!-- Thermal -->
     <string name="thermal_info">Use only one thermal driver from the following options, using more at the same time may cause unexpected behavior.</string>
@@ -317,6 +424,17 @@
     <string name="temp_limit_min_freq_summary">The thermal will use this frequency to throttle the maximum temperature.</string>
     <string name="temp_limit">Temperature Limit</string>
     <string name="temp_limit_summary">If the temperature goes above, the thermal will throttle the CPU frequency to lower the temperature.</string>
+    <string name="thermal_franco_stage_one">First stage limiting Frequency</string>
+    <string name="thermal_franco_stage_one_summary">Triggered at:</string>
+    <string name="thermal_franco_stage_two">Second stage limiting Frequency</string>
+    <string name="thermal_franco_stage_two_summary">Triggered at:</string>
+    <string name="thermal_franco_stage_three">Third stage limiting Frequency</string>
+    <string name="thermal_franco_stage_three_summary">Triggered at:</string>
+    <string name="thermal_franco_stage_four">Fourth stage limiting Frequency</string>
+    <string name="thermal_franco_stage_four_summary">Triggered at:</string>
+    <string name="thermal_franco_thermal_poll">Polling Interval</string>
+    <string name="thermal_franco_thermal_step">Thermal Step Value</string>
+    <string name="thermal_franco_thermal_step_summary">This value is added on top of threshold to create trigger thresholds between each stage</string>
 
     <!-- GPU -->
     <string name="gpu_2d_cur_freq">GPU 2D Current Frequency</string>
@@ -345,8 +463,12 @@
     <string name="idle_wait_summary">Number of events to wait before ramping down the frequency. The idlewait\'th events before current one must be all idle before Adreno idler ramps down the frequency. This implementation is to prevent micro-lags on scrolling or playing games. Adreno idler will more actively try to ramp down the frequency if this is set to a lower value.</string>
     <string name="workload">Workload</string>
     <string name="workload_summary">Adreno idler will more actively try to ramp down the frequency if this is set to a higher value.</string>
+    <string name="gpu_gaming_mode">Gaming Mode</string>
+    <string name="gpu_gaming_mode_summary">Gaming Mode restricts the GPU to the maximum power level while enabled.</string>
 
     <!-- Screen -->
+    <string name="screen_color_profile">Color Profile</string>
+    <string name="screen_color_profile_summary">Select a preset profile</string>
     <string name="red">Red</string>
     <string name="green">Green</string>
     <string name="blue">Blue</string>
@@ -358,6 +480,13 @@
     <string name="screen_hue_summary">You might get problems with MSM8x26 SoC when setting a high value.</string>
     <string name="screen_value">Screen Value</string>
     <string name="screen_contrast">Screen Contrast</string>
+    <string name="auto_high_brightness_mode">Automatic High Brightness Mode</string>
+    <string name="auto_high_brightness_smoothing">Smooth Lux Values for AutoHBM</string>
+    <string name="hbm_lock">Persist Disable AutoHBM on Manual Toggle</string>
+    <string name="hbm_lock_summary">Enable to persist lock through screen on/off events.</string>
+    <string name="auto_high_brightness_smoothing_warning">Smoothing will cause some delay in significant lux changes causing HBM to toggle.</string>
+    <string name="auto_high_brightness_mode_threshold">Automatic High Brightness Mode Threshold</string>
+    <string name="auto_high_brightness_smoothing_samples">Smoothing Sample Count</string>
     <string name="high_brightness_mode">High Brightness Mode</string>
     <string name="gamma">Gamma</string>
     <string name="gamma_profile">Gamma Profile</string>
@@ -392,12 +521,16 @@
     <string name="brightness_mode">Use exponential backlight mode instead of linear mode.</string>
     <string name="min_brightness">Minimum Brightness</string>
     <string name="min_brightness_summary">Allows you to decrease the LCD screen brightness lower than it\'s possible on stock.</string>
+    <string name="led_speed">LED SPEED</string>
+    <string name="led_speed_summary">Allows you to toggle the LED speed lower than it\'s possible on stock.</string>    
     <string name="max_brightness">Maximum Brightness</string>
     <string name="max_brightness_summary">Allows you to increase the LCD screen brightness higher than it\'s possible on stock.</string>
     <string name="backlight_dimmer">Backlight Dimmer</string>
     <string name="color_temp">Google Bluish Color Fix</string>
     <string name="color_temp_summary">Google introduced this fix in the android-6.0.1-mr22 tag for the Nexus 5X.</string>
     <string name="offset">Offset</string>
+    <string name="Led_toggle">Led Toggle</string>
+    <string name="Led_toggle_summary">Test Led blink.</string>
     <string name="negative_toggle">Negative Toggle</string>
     <string name="negative_toggle_summary">Enable inverting the screen colors by quickly pressing MENU button 4 times.</string>
     <string name="mdnie_global_controls">mDNIe global controls</string>
@@ -432,13 +565,18 @@
     <string name="s2s_right">Sweep Right</string>
     <string name="s2s_left">Sweep Left</string>
     <string name="s2s_any">Sweep Left or Right</string>
+    <string name="TW">Torch Wake</string>
+    <string name="TW_summary">Turn on flashlight by making a V.</string>
+    <string name="MW">Music Control</string>
+    <string name="MW_summary">Music control gestures.</string>
     <string name="t2w">Tap2Wake</string>
     <string name="t2w_summary">Wake up your device by tapping the screen.</string>
     <string name="wake">Wake</string>
     <string name="dt2w_charging">DoubleTap2Wake while charging</string>
     <string name="s2w_charging">Sweep2Wake while charging</string>
     <string name="dt2w_s2w_charging">DoubleTap2Wake + Sweep2Wake while charging</string>
-    <string name="sleep">Sleep</string>
+    <string name="sleep">Sweep2Sleep</string>
+    <string name="sleep_summary">Sweep across the bottom of the screen to sleep.</string>
     <string name="dt2s">DoubleTap2Sleep</string>
     <string name="dt2s_summary">Lock your device by double tapping on the top of the screen.</string>
     <string name="slide_up">Slide up</string>
@@ -458,10 +596,30 @@
     <string name="wake_timeout_summary">Set a duration when the wake controls will be disabled after the screen goes off.</string>
     <string name="power_key_suspend">Power Key Suspend</string>
     <string name="power_key_suspend_summary">Enabling this will turn off wake controls when the screen is turned off by the power key.</string>
+    <string name="wake_S2W_time">Sweep2Wake TimeOut</string>
+    <string name="wake_S2W_time_summary">Used to control the time that a sweep has to occur within to register as a sweep event. Default was traditionally 300ms</string>
+    <string name="wake_dt2w_timebetweentaps">DoubleTap2Wake TimeOut</string>
+    <string name="wake_dt2w_timebetweentaps_summary">Used to control the time that touches have to occur within to register as a DT2W event. Default was traditionally 500ms</string>
+    <string name="wake_dt2w_featherx">DoubleTap2Wake Feather (X axis)</string>
+    <string name="wake_dt2w_featherx_summary">Used to control the allowed distance between tap #1 and tap #2 along the X axis. This may help with unintentional wakes quite a bit. Default was traditionally 150.</string>
+    <string name="wake_dt2w_feathery">DoubleTap2Wake Feather (Y axis)</string>
+    <string name="wake_dt2w_feathery_summary">Used to control the allowed distance between tap #1 and tap #2 along the Y axis. This may help with unintentional wakes quite a bit. Default was traditionally 150.</string>
+    <string name="right">Right</string>
+    <string name="left">Left</string>
+    <string name="up">Up</string>
+    <string name="down">Down</string>
+
 
     <!-- Sound -->
+    <string name="driver_tunables">SOC Driver Tunables</string>
+    <string name="third_party_driver_tunables">Tunables from Third-Party Drivers</string>
     <string name="sound_control">Sound Control</string>
     <string name="headset_highperf_mode">Headset High Performance Mode</string>
+    <string name="headset_highperf_mode_summary">This helps prevent distortion at higher volumes.</string>
+    <string name="headphone_gain_independent">Independent Headphone Gain</string>
+    <string name="headphone_gain_independent_summary">Set seperate Left/Right values.</string>
+    <string name="headphone_gain_l">Headphone Gain Left</string>
+    <string name="headphone_gain_r">Headphone Gain Right</string>
     <string name="headphone_gain">Headphone Gain</string>
     <string name="handset_microphone_gain">Handset Microphone Gain</string>
     <string name="cam_microphone_gain">Camcorder Microphone Gain</string>
@@ -469,6 +627,8 @@
     <string name="headphone_poweramp_gain">Headphone PowerAmp Gain</string>
     <string name="microphone_gain">Microphone Gain</string>
     <string name="volume_gain">Volume Gain</string>
+    <string name="headset_mspkr_drv_mode">Speaker Driver Leakage</string>
+    <string name="headset_mspkr_drv_mode_summary">Run software workaround to avoid leakage on the speaker drive</string>
 
     <!-- Battery -->
     <string name="battery_voltage">Battery Voltage</string>
@@ -476,11 +636,20 @@
     <string name="battery_temperature">Battery Temperature</string>
     <string name="usb_fast_charge">USB Fast Charge</string>
     <string name="usb_fast_charge_summary">Device will charge faster when connected with USB. Replug your charger when changing this option.</string>
+    <string name="charge_levels">Charge Levels Interface</string>
+    <string name="charge_levels_summary">Setting levels higher than your device supports can damage your device and any device it is plugged into. USE CAUTION.</string>
+    <string name="charge_level_ac">AC Charge Level</string>
+    <string name="charge_level_ac_summary">Set MAX mA allowed while charging via AC (0 = stock charging logic)</string>
+    <string name="charge_level_usb">USB Charge Level</string>
+    <string name="charge_level_usb_summary">Set MAX mA allowed while charging via USB (0 = stock charging logic)</string>
+
     <string name="blx">Battery Life eXtender</string>
     <string name="blx_summary">Set a limit for the capacity to which the battery will be charged by passing a value between 0 and 100.</string>
     <string name="custom_charge_rate">Charge Rate</string>
     <string name="charge_rate">Battery Charging Rate</string>
     <string name="charge_rate_summary">Set Custom Battery Charge Rate. Caution: Exceeding 1250mA may damage your charging driver.</string>
+    <string name="lowpowervalue">Low Power Value</string>
+    <string name="lowpowervalue_summary">Set the Battery Level in % where big cores will shutdown.</string>
 
     <!-- I/O Scheduler -->
     <string name="internal_storage">Internal Storage</string>
@@ -491,6 +660,14 @@
     <string name="scheduler_tunable_summary">The various configuration items which are Scheduler-dependent.</string>
     <string name="read_ahead">Read-ahead</string>
     <string name="read_ahead_summary">The Read-ahead value on the phone memory.</string>
+    <string name="rotational">Rotational Storage</string>
+    <string name="rotational_summary">Treat device as rotational storage.</string>
+    <string name="iostats">I/O Stats</string>
+    <string name="iostats_summary">Maintain I/O statistics for this storage device. Disabling will break I/O monitoring apps.</string>
+    <string name="iorandom">Add Random</string>
+    <string name="iorandom_summary">Draw entropy from spinning (rotational) storage.</string>
+    <string name="ioaffitiny">RQ Affinity</string>
+    <string name="ioraffinity_summary">Try to have scheduler requests complete on the CPU core they were made from. Higher values are more aggressive.</string>
 
     <!-- Kernel Samepage Merging -->
     <string name="ksm_full_scans">Full scans</string>
@@ -498,12 +675,14 @@
     <string name="ksm_pages_sharing">Pages sharing</string>
     <string name="ksm_pages_unshared">Pages unshared</string>
     <string name="ksm_pages_volatile">Pages volatile</string>
-    <string name="ksm_enable">Enable KSM</string>
+    <string name="ksm_enable">Enable KSM (Uses UKSM if present)</string>
     <string name="ksm_enable_summary">Reduces memory usage but has an impact on the CPU usage.</string>
     <string name="ksm_pages_to_scan">Pages to scan</string>
     <string name="ksm_sleep_milliseconds">Sleep between scans</string>
     <string name="ksm_deferred_timer">Deferred timer</string>
     <string name="ksm_deferred_timer_summary">Reduces some CPU usage in return for less memory savings.</string>
+    <string name="uksm_cpu_use">Max CPU Usage</string>
+    <string name="uksm_cpu_use_summary">Max CPU percentage for UKSM to use when merging pages</string>
 
     <!-- Low Memory Killer -->
     <string name="foreground_app">Foreground Applications</string>
@@ -523,6 +702,33 @@
     <string name="zram">Z-RAM</string>
     <string name="disksize">Disksize</string>
     <string name="disksize_summary">Attempts to increase performance by avoiding paging on physical storage, instead using a compressed virtual device in RAM. Paging takes place in RAM until it is necessary to use the swap space on physical storage.</string>
+    <string name="dirty_ratio">Dirty Ratio</string>
+    <string name="dirty_ratio_summary">Contains, as a percentage of total system memory, the number of pages at which a process which is generating disk writes will itself start writing out dirty data. Lower the amount of unwritten write cache to reduce lags when a huge write is required.</string>
+    <string name="dirty_background_ratio">Dirty Background Ratio</string>
+    <string name="dirty_background_ratio_summary">Contains, as a percentage of total system memory, the number of pages at which the pdflush background writeback daemon will start writing out dirty data.</string>
+    <string name="dirty_expire_centisecs">Dirty Expire Centisecs</string>
+    <string name="dirty_expire_centisecs_summary">This tunable is used to define when dirty data is old enough to be eligible for writeout by the kernel flusher threads.  It is expressed in 100\'ths of a second.  Data which has been dirty in-memory for longer than this interval will be written out next time a flusher thread wakes up.</string>
+    <string name="dirty_writeback_centisecs">Dirty Writeback Centisecs</string>
+    <string name="dirty_writeback_centisecs_summary">The kernel flusher threads will periodically wake up and write old data out to disk.  This tunable expresses the interval between those wakeups, in 100\'ths of a second.  Setting this to zero disables periodic writeback altogether.</string>
+    <string name="dynamic_dirty_writeback_centisecs">Dynamic Dirty Writeback</string>
+    <string name="dynamic_dirty_writeback_centisecs_summary">This feature allows to have two different intervals for dirty page writebacks and to dynamically manage them when the system has been resumed (it\'s active) or when has been suspended.</string>
+    <string name="dirty_writeback_suspend_centisecs">Suspend Dirty Writeback Centisecs</string>
+    <string name="dirty_writeback_suspend_centisecs_summary">The kernel flusher threads will periodically wake up and write old data out to disk.  This tunable expresses the interval between those wakeups during suspend, in 100\'ths of a second.  Setting this to zero disables periodic writeback altogether.</string>
+    <string name="dirty_writeback_active_centisecs">Active Writeback Centisecs</string>
+    <string name="dirty_writeback_active_centisecs_summary">The kernel flusher threads will periodically wake up and write old data out to disk.  This tunable expresses the interval between those wakeups while active, in 100\'ths of a second.  Setting this to zero disables periodic writeback altogether.</string>
+    <string name="overcommit_ratio">Overcommit Ratio</string>
+    <string name="overcommit_ratio_summary">Percentage of physical memory size to include in overcommit calculations.</string>
+    <string name="swappiness">Swappiness</string>
+    <string name="swappiness_summary">Controls the tendency of the kernel to move processes out of physical memory and onto the swap disk. Because disks are much slower than RAM, this can lead to slower response times for system and applications if processes are too aggressively moved out of memory.</string>
+    <string name="vfs_cache_pressure">VFS Cache Pressure</string>
+    <string name="vfs_cache_pressure_summary">Controls the tendency of the kernel to reclaim the memory which is used for caching of directory and inode objects.</string>
+    <string name="laptop_mode">Laptop Mode</string>
+    <string name="laptop_mode_summary">This option will delay the writebacks of file system bits cached in RAM while screen is ON (Enable for better performance at a slight risk of possible data loss if crashed or sudden loss of power).</string>
+
+    <string name="min_free_kbytes">Min free Kilobytes</string>
+    <string name="min_free_kbytes_summary">This is used to force the Linux VM to keep a minimum number of kilobytes free. The VM uses this number to compute a pages_min value for each lowmem zone in the system. Each lowmem zone gets a number of reserved free pages based proportionally on its size.</string>
+    <string name="extra_free_kbytes">Extra Free Kilobytes</string>
+    <string name="extra_free_kbytes_summary">This parameter tells the VM to keep extra free memory between the threshold where background reclaim (kswapd) kicks in, and the threshold where direct reclaim (by allocating processes) kicks in.</string>
 
     <!-- Entropy -->
     <string name="available">Available</string>
@@ -531,8 +737,15 @@
     <string name="write">Write</string>
 
     <!-- Misc Controls -->
+    <string name="misc_settings">Misc Settings</string>
+    <string name="se_linux">Toggle SE Linux</string>
+    <string name="se_linux_summary">Current SELinux Status:</string>
     <string name="vibration_strength">Vibration Strength</string>
     <string name="android_logger">Android logging</string>
+    <string name="bcl">BCL</string>
+    <string name="bcl_summary">Enable or Disable BCL completely</string>
+    <string name="bcl_hotplug">BCL Hotplugging</string>
+    <string name="bcl_hotplug_summary">Enable or Disable BCL Hotplugging</string>
     <string name="crc">Software CRC control</string>
     <string name="crc_summary">CRC is a mechanism aiming to prevent data corruption when enabled. Data blocks can lose up to 30% of their performance.</string>
     <string name="fsync">Fsync</string>
@@ -541,8 +754,15 @@
     <string name="dynamic_fsync_summary">When enabled and screen is on, fsync operation is asynchronous. When screen is off, this operation is done synchronously.</string>
     <string name="gentlefairsleepers">Gentle Fair Sleepers</string>
     <string name="gentlefairsleepers_summary">Only give sleepers 50% of their service deficit. Disabling this can save a little battery power.</string>
+    <string name="msm_usb_otg">MSM USB OTG</string>
+    <string name="msm_usb_otg_summary">Enable this hack to allow externally powered usb host mode. Developed by ziddey and faux123.</string>
+    <string name="archpower">Arch Power</string>
+    <string name="archpower_summary">Enable Arch Specific Power Function/Savings</string>
     <string name="power_suspend_mode">Power Suspend Mode</string>
     <string name="power_suspend_mode_summary">Kernel Mode, LCD Hooks and Highest Level Hook are automatically managed by the kernel. To manually enable or disable the Power Suspend State choose User Mode.</string>
+    <string name="state_notifier_mode">State Notifier Mode</string>
+    <string name="state_notifier_mode_summary_enabled">Toggle between State and FB Notifiers. \nCurrently: State Notifier</string>
+    <string name="state_notifier_mode_summary_disabled">Toggle between State and FB Notifiers. \nCurrently: FB Notifier</string>
     <string name="autosleep">Autosleep</string>
     <string name="userspace">Userspace</string>
     <string name="lcd_panel">LCD Panel</string>
@@ -553,21 +773,39 @@
     <string name="tcp">TCP Congestion Algorithm</string>
     <string name="tcp_summary">The Transmission Control Protocol is one of the core protocols of the Internet protocol suite (IP), and is so common that the entire suite is often called TCP/IP.</string>
     <string name="hostname">Hostname</string>
-    <string name="wakelock">Wakelock</string>
+    <string name="adb_over_wifi">ADB Over WiFi</string>
+    <string name="adb_over_wifi_summary">Enable ADB over WiFi</string>
+    <string name="adb_over_wifi_connect_summary">Enable ADB over WiFi. Connect to: </string>
+    <string name="wakelock">Wakelocks</string>
+    <string name="wakelocks_summary">Toggle on: Service can acquire a wakelock. Toggle off: Service cannot acquire a wakelock.</string>
     <string name="smb135x_wakelock">smb135x Wakelock</string>
-    <string name="smb135x_wakelock_summary">Prevent wakelock when power disconnected.</string>
+    <string name="smb135x_wakelock_summary">Allow wakelock when power disconnected.\n Currently: %s</string>
+    <string name="bluesleep_wakelock">BlueSleep Wakelock</string>
+    <string name="bluesleep_wakelock_summary">Allow BlueSleep Wakelock.\n Currently: %s</string>
     <string name="sensor_ind_wakelock">sensor_ind Wakelock</string>
-    <string name="sensor_ind_wakelock_summary">Prevent wakelock when Ambient Display disabled.</string>
+    <string name="sensor_ind_wakelock_summary">Allow wakelock when Ambient Display disabled.\n Currently: %s</string>
     <string name="msm_hsic_host_wakelock">msm_hsic_host Wakelock</string>
-    <string name="msm_hsic_host_wakelock_summary">Prevent msm_hsic_host wakelock.</string>
+    <string name="msm_hsic_host_wakelock_summary">Allow msm_hsic_host wakelock.\n Currently: %s</string>
     <string name="wlan_rx_wakelock">wlan_rx Wakelock</string>
-    <string name="wlan_rx_wakelock_summary">Prevent wlan_rx wakelock.</string>
+    <string name="wlan_rx_wakelock_summary">Allow wlan_rx wakelock.\n Currently: %s</string>
     <string name="wlan_ctrl_wakelock">wlan_ctrl Wakelock</string>
-    <string name="wlan_ctrl_wakelock_summary">Prevent wlan_ctrl wakelock.</string>
+    <string name="wlan_ctrl_wakelock_summary">Allow wlan_ctrl wakelock.\n Currently: %s</string>
     <string name="wlan_wakelock">wlan Wakelock</string>
-    <string name="wlan_wakelock_summary">Prevent wlan wakelock.</string>
+    <string name="wlan_wakelock_summary">Allow wlan wakelock.\n Currently: %s</string>
     <string name="wlan_rx_wakelock_divider">wlan_rx Wakelock Divider</string>
     <string name="msm_hsic_wakelock_divider">msm_hsic Wakelock Divider</string>
+    <string name="bcmdhd_wakelock_divider">BCMDHD Wakelock Divider</string>
+    <string name="cstates">Krait C-States Settings</string>
+    <string name="c0state">C0 (WFI)</string>
+    <string name="c0state_summary">Shallowest Sleep with instant wake up.</string>
+    <string name="c1state">C1 (Retention)</string>
+    <string name="c1state_summary">Slightly deeper sleep with slight latency when waking up. (Disable this if you encounter screen flickering)</string>
+    <string name="c2state">C2 (Stand Alone Power Collapse)</string>
+    <string name="c2state_summary">Deeper sleep with longer latency when waking up.</string>
+    <string name="c3state">C3 (Power Collapse)</string>
+    <string name="c3state_summary">Really deep sleep with longest latency when waking up.</string>
+    <string name="switchbuttons">Switch Buttons</string>
+    <string name="switchbuttons_summary">Switch back and recents buttons.</string>
 
     <!-- Plugins -->
     <string name="plugin_warning">I, the creator of this application, am not responsible for any damages that third party apps produce! I also can\'t guarantee for the functionality of them. Please be careful which applications you download!</string>
@@ -576,6 +814,7 @@
     <string name="no_plugins">No plugins found</string>
     <string name="installed">Installed</string>
     <string name="update_available">Update available</string>
+    <string name="update_available_open_app">Open Kernek Adiutor-Mod to download</string>
     <string name="not_installed">Not installed</string>
 
     <!-- Downloads -->
@@ -614,7 +853,7 @@
     <string name="delete_question">Delete %s?</string>
 
     <!-- Build prop Editor -->
-    <string name="items_found">%d item/s found</string>
+    <string name="items_found">%d items found</string>
     <string name="add">Add</string>
     <string name="edit">Edit</string>
     <string name="key">Key</string>
@@ -634,6 +873,8 @@
     <string name="applied">Applied</string>
     <string name="applying_profile">Applying %s</string>
     <string name="replace_profile">Do you want to replace %s?</string>
+    <string name="set_per_app">Set Per App Settings</string>
+    <string name="per_app_title">Select Apps that will activate this profile</string>
 
     <!-- Recovery -->
     <string name="reboot">Reboot</string>
@@ -682,6 +923,11 @@
     <string name="last_kmsg_summary">Copy /proc/last_kmsg to /sdcard/last_kmsg.txt</string>
     <string name="driver_message">Driver Message</string>
     <string name="driver_message_summary">Copy driver message (dmesg) to /sdcard/dmesg.txt</string>
+    <string name="dump_sysfs">Dump SysFS</string>
+    <string name="dump_sysfs_summary">Dumps the values for all SysFS entries that this app is looking for</string>
+    <string name="dump_sysfs_dialog_title">Dumping SysFS entries</string>
+    <string name="dump_sysfs_dialog_summary">This will take a second. Please wait...</string>
+    <string name="dump_sysfs_share_title">Share via</string>
     <string name="security">Security</string>
     <string name="set_password">Set Password</string>
     <string name="set_password_summary">You can protect Kernel Adiutor by setting up a password. Every time you open this application, you have to enter it. If you forget it, simply wipe the data of this application in settings of your device. Don\'t worry I won\'t share your password.</string>
@@ -695,7 +941,11 @@
     <string name="password_too_long">Password is too long</string>
     <string name="set_password_first">Set a password first</string>
     <string name="show_sections">Show sections</string>
-
+    <string name="per_app">Per App Profiles</string>
+    <string name="per_app_toast">Per App Toast</string>
+    <string name="per_app_toast_summary">Show a toast when applying a profile for Per App detection</string>
+    <string name="update_check">Update Checking</string>
+    <string name="update_check_summary">Allow app to check for updates on-boot and on-open.</string>
     <!-- FAQ -->
     <string name="misspelled">Why did you misspell \"Auditor\"?</string>
     <string name="misspelled_summary">Adiutor is Latin and means helper.</string>
@@ -727,10 +977,22 @@
     <string name="frenn" translatable="false">Karim Frenn</string>
     <string name="open_source">Open source</string>
     <string name="open_source_summary">This application is open source. Check it out on my GitHub!</string>
+    <string name="google_plus_community">Google Plus Community</string>
+    <string name="google_plus_community_summary">This project is now also on Google+. Click here to visit the community.</string>
     <string name="feature_request">Feature request</string>
     <string name="feature_request_summary">Do you want more features? Open a new issue on GitHub and submit your idea.</string>
+    <string name="donate_summary">This is a donation link for Yoinx for the modifications. Not to Grarak the original author. This button is the only place for a donation to me, all other donation popups will still go to Grarak</string>
     <string name="google_plus_summary">Join our community.</string>
     <string name="translation">Translation</string>
     <string name="translation_summary">Help me translate this app!</string>
+
+    <string name="modification">Modified build of Kernel Adiutor</string>
+    <string name="modification_summary">This application is being modified for various custom features that are not included in the original Kernel Adiutor.</string>
+
+    <string name="modification_version">Modification Version</string>
+    <string name="modification_version_number" translatable="false">Build 14</string>
+
+    <string name="accessibility_service_label">KA Per App Monitor</string>
+    <string name="accessibility_service_desc">Service to monitor when foreground app changes for per-app profile loading</string>
 
 </resources>

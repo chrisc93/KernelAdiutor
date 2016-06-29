@@ -17,19 +17,25 @@
 package com.grarak.kerneladiutor.utils.kernel;
 
 import android.content.Context;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 
 import com.grarak.kerneladiutor.utils.Constants;
 import com.grarak.kerneladiutor.utils.Utils;
 import com.grarak.kerneladiutor.utils.root.Control;
+import com.kerneladiutor.library.root.RootUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by willi on 02.01.15.
  */
 public class Misc implements Constants {
+
+    private static String[] mAvailableTCPCongestions;
 
     private static String VIBRATION_PATH;
     private static Integer VIBRATION_MAX;
@@ -39,137 +45,7 @@ public class Misc implements Constants {
 
     private static String CRC_FILE;
 
-    private static String FSYNC_FILE;
-    private static boolean FSYNC_USE_INTEGER;
-
-    private static String SMB135X_WAKELOCK_FILE;
-    private static String WLAN_RX_WAKELOCK_FILE;
-    private static String WLAN_CTRL_WAKELOCK_FILE;
-    private static String WLAN_WAKELOCK_FILE;
-
-    public static void setMsmHsicWakelockDivider(int value, Context context) {
-        String command = String.valueOf(value + 1);
-        if (value == 15) command = "0";
-        Control.runCommand(command, MSM_HSIC_WAKELOCK_DIVIDER, Control.CommandType.GENERIC, context);
-    }
-
-    public static int getMsmHsicWakelockDivider() {
-        int value = Utils.stringToInt(Utils.readFile(MSM_HSIC_WAKELOCK_DIVIDER));
-        if (value == 0) value = 16;
-        return value - 1;
-    }
-
-    public static boolean hasMsmHsicWakelockDivider() {
-        return Utils.existFile(MSM_HSIC_WAKELOCK_DIVIDER);
-    }
-
-    public static void setWlanrxWakelockDivider(int value, Context context) {
-        String command = String.valueOf(value + 1);
-        if (value == 15) command = "0";
-        Control.runCommand(command, WLAN_RX_WAKELOCK_DIVIDER, Control.CommandType.GENERIC, context);
-    }
-
-    public static int getWlanrxWakelockDivider() {
-        int value = Utils.stringToInt(Utils.readFile(WLAN_RX_WAKELOCK_DIVIDER));
-        if (value == 0) value = 16;
-        return value - 1;
-    }
-
-    public static boolean hasWlanrxWakelockDivider() {
-        return Utils.existFile(WLAN_RX_WAKELOCK_DIVIDER);
-    }
-
-    public static void activateWlanWakeLock(boolean active, Context context) {
-        Control.runCommand(active ? "Y" : "N", WLAN_WAKELOCK_FILE, Control.CommandType.GENERIC, context);
-    }
-
-    public static boolean isWlanWakeLockActive() {
-        return Utils.readFile(WLAN_WAKELOCK_FILE).equals("Y");
-    }
-
-    public static boolean hasWlanWakeLock() {
-        for (String file : WLAN_WAKELOCKS)
-            if (Utils.existFile(file)) {
-                WLAN_WAKELOCK_FILE = file;
-                return true;
-            }
-        return false;
-    }
-
-    public static void activateWlanctrlWakeLock(boolean active, Context context) {
-        Control.runCommand(active ? "Y" : "N", WLAN_CTRL_WAKELOCK_FILE, Control.CommandType.GENERIC, context);
-    }
-
-    public static boolean isWlanctrlWakeLockActive() {
-        return Utils.readFile(WLAN_CTRL_WAKELOCK_FILE).equals("Y");
-    }
-
-    public static boolean hasWlanctrlWakeLock() {
-        for (String file : WLAN_CTRL_WAKELOCKS)
-            if (Utils.existFile(file)) {
-                WLAN_CTRL_WAKELOCK_FILE = file;
-                return true;
-            }
-        return false;
-    }
-
-    public static void activateWlanrxWakeLock(boolean active, Context context) {
-        Control.runCommand(active ? "Y" : "N", WLAN_RX_WAKELOCK_FILE, Control.CommandType.GENERIC, context);
-    }
-
-    public static boolean isWlanrxWakeLockActive() {
-        return Utils.readFile(WLAN_RX_WAKELOCK_FILE).equals("Y");
-    }
-
-    public static boolean hasWlanrxWakeLock() {
-        for (String file : WLAN_RX_WAKELOCKS)
-            if (Utils.existFile(file)) {
-                WLAN_RX_WAKELOCK_FILE = file;
-                return true;
-            }
-        return false;
-    }
-
-    public static void activateMsmHsicHostWakeLock(boolean active, Context context) {
-        Control.runCommand(active ? "Y" : "N", MSM_HSIC_HOST_WAKELOCK, Control.CommandType.GENERIC, context);
-    }
-
-    public static boolean isMsmHsicHostWakeLockActive() {
-        return Utils.readFile(MSM_HSIC_HOST_WAKELOCK).equals("Y");
-    }
-
-    public static boolean hasMsmHsicHostWakeLock() {
-        return Utils.existFile(MSM_HSIC_HOST_WAKELOCK);
-    }
-
-    public static void activateSensorIndWakeLock(boolean active, Context context) {
-        Control.runCommand(active ? "Y" : "N", SENSOR_IND_WAKELOCK, Control.CommandType.GENERIC, context);
-    }
-
-    public static boolean isSensorIndWakeLockActive() {
-        return Utils.readFile(SENSOR_IND_WAKELOCK).equals("Y");
-    }
-
-    public static boolean hasSensorIndWakeLock() {
-        return Utils.existFile(SENSOR_IND_WAKELOCK);
-    }
-
-    public static void activateSmb135xWakeLock(boolean active, Context context) {
-        Control.runCommand(active ? "Y" : "N", SMB135X_WAKELOCK_FILE, Control.CommandType.GENERIC, context);
-    }
-
-    public static boolean isSmb135xWakeLockActive() {
-        return Utils.readFile(SMB135X_WAKELOCK_FILE).equals("Y");
-    }
-
-    public static boolean hasSmb135xWakeLock() {
-        for (String file : SMB135X_WAKELOCKS)
-            if (Utils.existFile(file)) {
-                SMB135X_WAKELOCK_FILE = file;
-                return true;
-            }
-        return false;
-    }
+    private static String BCL_FILE;
 
     public static void setHostname(String value, Context context) {
         Control.setProp(HOSTNAME_KEY, value, context);
@@ -185,57 +61,82 @@ public class Misc implements Constants {
     }
 
     public static String getCurTcpCongestion() {
-        return getTcpAvailableCongestions().get(0);
+        return getTcpAvailableCongestions(false).get(0);
     }
 
-    public static List<String> getTcpAvailableCongestions() {
-        return new ArrayList<>(Arrays.asList(Utils.readFile(TCP_AVAILABLE_CONGESTIONS).split(" ")));
+    public static List<String> getTcpAvailableCongestions(boolean sort) {
+        if (mAvailableTCPCongestions == null) mAvailableTCPCongestions = new String[0];
+        String value = Utils.readFile(TCP_AVAILABLE_CONGESTIONS);
+        if (value != null) {
+            mAvailableTCPCongestions = value.split(" ");
+            if (sort) {
+                Collections.sort(Arrays.asList(mAvailableTCPCongestions), String.CASE_INSENSITIVE_ORDER);
+
+            }
+        }
+        return new ArrayList<>(Arrays.asList(mAvailableTCPCongestions));
     }
 
-    public static void setNewPowerSuspend(int value, Context context) {
-        Control.runCommand(String.valueOf(value), POWER_SUSPEND_STATE, Control.CommandType.GENERIC, context);
+    public static boolean hasLedSpeed() {
+        return Utils.existFile(LED_SPEED_GREEN);
     }
 
-    public static int getNewPowerSuspendState() {
-        return Utils.stringToInt(Utils.readFile(POWER_SUSPEND_STATE));
+    public static int getMaxMinLedSpeed() {
+        if (Utils.existFile(LED_SPEED_GREEN)) {
+            return 3;
+        }
+        return 0;
     }
 
-    public static boolean hasNewPowerSuspendState() {
-        if (Utils.existFile(POWER_SUSPEND_STATE) && Utils.existFile(POWER_SUSPEND_VERSION)) {
-            String version = Utils.readFile(POWER_SUSPEND_VERSION);
-            if (version.contains("1.3") || version.contains("1.5")) return true;
+    public static int getCurLedSpeed() {
+        return Utils.stringToInt(Utils.readFile(LED_SPEED_GREEN));
+    }
+
+    public static void setLedSpeed(int value, Context context) {
+            Control.runCommand(String.valueOf(value), LED_SPEED_GREEN, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isLedActive() {
+ 		return Utils.readFile(LED_ACTIVE).equals("1");
+    }
+
+    public static void activateLedMode(boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", LED_ACTIVE, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean hasLedMode() {
+        return Utils.existFile(LED_ACTIVE);
+    }
+
+    public static String getIpAddr(Context context) {
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        int ip = wifiInfo.getIpAddress();
+
+        String ipString = String.format(
+                "%d.%d.%d.%d",
+                (ip & 0xff),
+                (ip >> 8 & 0xff),
+                (ip >> 16 & 0xff),
+                (ip >> 24 & 0xff));
+
+        return ipString;
+    }
+
+    public static void activateADBOverWifi(boolean active, Context context) {
+        if (active) {
+            Control.setProp("service.adb.tcp.port", "5555", context);
+        }
+        else {
+            Control.setProp("service.adb.tcp.port", "-1", context);
+        }
+    }
+
+    public static boolean isADBOverWifiActive() {
+        if (Utils.getProp(ADB_OVER_WIFI).equals("5555")) {
+            return true;
         }
         return false;
-    }
-
-    public static void activateOldPowerSuspend(boolean active, Context context) {
-        Control.runCommand(active ? "1" : "0", POWER_SUSPEND_STATE, Control.CommandType.GENERIC, context);
-    }
-
-    public static boolean isOldPowerSuspendStateActive() {
-        return Utils.readFile(POWER_SUSPEND_STATE).equals("1");
-    }
-
-    public static boolean hasOldPowerSuspendState() {
-        if (Utils.existFile(POWER_SUSPEND_STATE) && Utils.existFile(POWER_SUSPEND_VERSION))
-            if (Utils.readFile(POWER_SUSPEND_VERSION).contains("1.2")) return true;
-        return false;
-    }
-
-    public static void setPowerSuspendMode(int value, Context context) {
-        Control.runCommand(String.valueOf(value), POWER_SUSPEND_MODE, Control.CommandType.GENERIC, context);
-    }
-
-    public static int getPowerSuspendMode() {
-        return Utils.stringToInt(Utils.readFile(POWER_SUSPEND_MODE));
-    }
-
-    public static boolean hasPowerSuspendMode() {
-        return Utils.existFile(POWER_SUSPEND_MODE);
-    }
-
-    public static boolean hasPowerSuspend() {
-        return Utils.existFile(POWER_SUSPEND);
     }
 
     public static void activateGentleFairSleepers(boolean active, Context context) {
@@ -248,6 +149,18 @@ public class Misc implements Constants {
 
     public static boolean hasGentleFairSleepers() {
         return Utils.existFile(GENTLE_FAIR_SLEEPERS);
+    }
+
+    public static void activateUsbOtg(boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", MSM_USB_OTG, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isUsbOtgActive() {
+        return Utils.readFile(MSM_USB_OTG).equals("1");
+    }
+
+    public static boolean hasUsbOtg() {
+        return Utils.existFile(MSM_USB_OTG);
     }
 
     public static void activateDynamicFsync(boolean active, Context context) {
@@ -263,32 +176,56 @@ public class Misc implements Constants {
     }
 
     public static void activateFsync(boolean active, Context context) {
-        if (FSYNC_USE_INTEGER)
-            Control.runCommand(active ? "1" : "0", FSYNC_FILE, Control.CommandType.GENERIC, context);
-        else
-            Control.runCommand(active ? "Y" : "N", FSYNC_FILE, Control.CommandType.GENERIC, context);
+        if (Utils.isLetter(Utils.readFile(Utils.getsysfspath(FSYNC_ARRAY)))) {
+            Control.runCommand(active ? "Y" : "N", Utils.getsysfspath(FSYNC_ARRAY), Control.CommandType.GENERIC, context);
+        } else {
+            Control.runCommand(active ? "1" : "0", Utils.getsysfspath(FSYNC_ARRAY), Control.CommandType.GENERIC, context);
+        }
     }
 
     public static boolean isFsyncActive() {
-        if (FSYNC_USE_INTEGER)
-            return Utils.readFile(FSYNC_FILE).equals("1");
-        else
-            return Utils.readFile(FSYNC_FILE).equals("Y");
+        String path = Utils.getsysfspath(FSYNC_ARRAY);
+        return Utils.readFile(path).equals(Utils.isLetter(Utils.readFile(path)) ? "Y" : "1");
     }
 
     public static boolean hasFsync() {
-        for (String file : FSYNC_ARRAY)
-            if (Utils.existFile(file)) {
-                FSYNC_FILE = file;
-                try {
-                    Integer.parseInt(Utils.readFile(FSYNC_FILE));
-                    FSYNC_USE_INTEGER = true;
-                } catch (NumberFormatException ignored) {
-                    FSYNC_USE_INTEGER = false;
-                }
+        return Utils.existFile(Utils.getsysfspath(FSYNC_ARRAY));
+    }
+
+    public static void activateBcl(boolean active, Context context) {
+        if (!active && Misc.hasBclHotplug() && Misc.isBclHotplugActive()) {
+            Misc.activateBclHotplug(false, context);
+        }
+        Control.runCommand(active ? "enabled" : "disabled", BCL_FILE, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isBclActive() {
+        return Utils.readFile(BCL_FILE).equals("enabled");
+    }
+
+    public static boolean hasBcl() {
+        for (int i = 0; i < BCL_ARRAY.length;i++) {
+            if (Utils.existFile(BCL_ARRAY[i])) {
+                BCL_FILE = BCL_ARRAY[i];
                 return true;
             }
+        }
         return false;
+    }
+
+    public static void activateBclHotplug(boolean active, Context context) {
+        if (active && Misc.hasBcl() && !Misc.isBclActive()) {
+            Misc.activateBcl(true, context);
+        }
+        Control.runCommand(active ? "Y" : "N", BCL_HOTPLUG, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isBclHotplugActive() {
+        return Utils.readFile(BCL_HOTPLUG).equals("Y");
+    }
+
+    public static boolean hasBclHotplug() {
+        return Utils.existFile(BCL_HOTPLUG);
     }
 
     public static void activateCrc(boolean active, Context context) {
@@ -309,11 +246,28 @@ public class Misc implements Constants {
     }
 
     public static void activateLogger(boolean active, Context context) {
-        Control.runCommand(active ? "1" : "0", LOGGER_FILE, Control.CommandType.GENERIC, context);
+        if (!LOGGER_FILE.equals(LOGD)) {
+            Control.runCommand(active ? "1" : "0", LOGGER_FILE, Control.CommandType.GENERIC, context);
+        }
+        if (LOGGER_FILE.equals(LOGD)) {
+            // This is needed because the path changes from "start" to "stop" so it breaks the commandsaver function
+            Control.deletespecificcommand(context, active ? "stop" : "start", null);
+
+            Control.runCommand("logd", active ? "start" : "stop", Control.CommandType.SHELL, context);
+        }
     }
 
     public static boolean isLoggerActive() {
-        return Utils.readFile(LOGGER_FILE).equals("1");
+        if (!LOGGER_FILE.equals(LOGD)) {
+            return Utils.readFile(LOGGER_FILE).equals("1");
+        }
+        if (LOGGER_FILE.equals(LOGD)) {
+            String result = RootUtils.runCommand("ps | grep logd");
+            if (result != null && !result.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean hasLoggerEnable() {
@@ -350,9 +304,9 @@ public class Misc implements Constants {
                 return VIBRATION_MIN;
             }
 
-            for (Object[] vibs : VIBRATION_ARRAY)
-                if (VIBRATION_PATH.equals(vibs[0]))
-                    VIBRATION_MIN = (int) vibs[2];
+            for (int i = 0; i < VIBRATION_ARRAY.length; i++)
+                if (VIBRATION_PATH.equals(VIBRATION_ARRAY[i]))
+                    VIBRATION_MIN = VIBRATION_MAX_MIN_ARRAY[i][1];
         }
         return VIBRATION_MIN != null ? VIBRATION_MIN : 0;
     }
@@ -371,9 +325,9 @@ public class Misc implements Constants {
                 return VIBRATION_MAX;
             }
 
-            for (Object[] vibs : VIBRATION_ARRAY)
-                if (VIBRATION_PATH.equals(vibs[0]))
-                    VIBRATION_MAX = (int) vibs[1];
+            for (int i = 0; i < VIBRATION_ARRAY.length; i++)
+                if (VIBRATION_PATH.equals(VIBRATION_ARRAY[i]))
+                    VIBRATION_MAX = VIBRATION_MAX_MIN_ARRAY[i][0];
         }
         return VIBRATION_MAX != null ? VIBRATION_MAX : 0;
     }
@@ -383,12 +337,43 @@ public class Misc implements Constants {
     }
 
     public static boolean hasVibration() {
-        for (Object[] vibs : VIBRATION_ARRAY)
-            if (Utils.existFile(vibs[0].toString())) {
-                VIBRATION_PATH = vibs[0].toString();
+        for (String vibration : VIBRATION_ARRAY)
+            if (Utils.existFile(vibration)) {
+                VIBRATION_PATH = vibration;
                 break;
             }
         return VIBRATION_PATH != null;
+    }
+
+    public static boolean isSELinuxActive () {
+        String result = RootUtils.runCommand(GETENFORCE);
+        if (result.equals("Enforcing")) return true;
+        return false;
+    }
+
+    public static void activateSELinux (boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", SETENFORCE, Control.CommandType.SHELL, context);
+    }
+
+    public static String getSELinuxStatus () {
+        String result = RootUtils.runCommand(GETENFORCE);
+        if (result != null) {
+            if (result.equals("Enforcing")) return "Enforcing";
+            else if (result.equals("Permissive")) return "Permissive";
+        }
+        return "Unknown Status";
+    }
+
+    public static void activateswitchbuttons(boolean active, Context context) {
+        Control.runCommand(active ? "1" : "0", SWITCH_BUTTONS, Control.CommandType.GENERIC, context);
+    }
+
+    public static boolean isswitchbuttonsActive() {
+        return Utils.readFile(SWITCH_BUTTONS).equals("1");
+    }
+
+    public static boolean hasswitchbuttons() {
+        return Utils.existFile(SWITCH_BUTTONS);
     }
 
 }
