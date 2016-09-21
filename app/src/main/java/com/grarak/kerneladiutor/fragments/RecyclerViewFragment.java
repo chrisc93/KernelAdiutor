@@ -150,7 +150,14 @@ public abstract class RecyclerViewFragment extends BaseFragment {
                 = new RecyclerViewAdapter(mItems, new RecyclerViewAdapter.OnViewChangedListener() {
             @Override
             public void viewChanged() {
-                adjustScrollPosition();
+                getHandler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isAdded() && getActivity() != null) {
+                            adjustScrollPosition();
+                        }
+                    }
+                }, 250);
             }
         }) : mRecyclerViewAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager = getLayoutManager());
@@ -317,7 +324,7 @@ public abstract class RecyclerViewFragment extends BaseFragment {
     }
 
     protected void addItem(RecyclerViewItem recyclerViewItem) {
-        if (mItems.size() == 0 && mAdView != null) {
+        if (mItems.size() == 0 && mAdView != null && !mItems.contains(mAdView)) {
             boolean exists = false;
             for (RecyclerViewItem item : mItems) {
                 if (item instanceof AdView) {
@@ -402,7 +409,7 @@ public abstract class RecyclerViewFragment extends BaseFragment {
     }
 
     public int itemsSize() {
-        return mItems.size();
+        return mAdView != null && mItems.contains(mAdView) ? mItems.size() - 1 : mItems.size();
     }
 
     protected void addViewPagerFragment(BaseFragment fragment) {
