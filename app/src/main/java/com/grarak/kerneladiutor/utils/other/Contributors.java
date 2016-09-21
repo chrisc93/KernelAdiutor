@@ -101,7 +101,5 @@ public class Contributors {
                 return 0;
             }
         }
-
     }
-
 }

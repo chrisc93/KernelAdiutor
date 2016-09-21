@@ -89,7 +89,7 @@ public class ContributorsFragment extends RecyclerViewFragment {
                     }
                 }
             });
-            mWebpageReader.execute("https://api.github.com/repos/Grarak/KernelAdiutor/contributors");
+            mWebpageReader.execute("https://api.github.com/repos/Grarak/KernelAdiutor/contributors?per_page=100");
         }
     }
 
