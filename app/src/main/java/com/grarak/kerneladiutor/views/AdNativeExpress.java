@@ -56,6 +56,8 @@ import java.util.List;
 public class AdNativeExpress extends LinearLayout {
 
     public static final String ADS_FETCH = "https://raw.githubusercontent.com/Grarak/KernelAdiutor/master/ads/ads.json";
+    private static final int MAX_WIDTH = 1200;
+    private static final int MIN_HEIGHT = 132;
 
     private boolean mNativeLoaded;
     private boolean mNativeLoading;
@@ -128,12 +130,16 @@ public class AdNativeExpress extends LinearLayout {
                 (width = mNativeAdLayout.getWidth()) == 0) {
             return;
         }
-        loadNativeAd(width);
+        float deviceDensity = getResources().getDisplayMetrics().density;
+        if (deviceDensity > 0) {
+            loadNativeAd(width, deviceDensity);
+        }
     }
 
-    private void loadNativeAd(int width) {
-        mNativeExpressAdView.setAdSize(
-                new AdSize(width / (int) getResources().getDisplayMetrics().density, 132));
+    private void loadNativeAd(int width, float deviceDensity) {
+        float adWidth = width / deviceDensity;
+        if (adWidth > MAX_WIDTH) adWidth = MAX_WIDTH;
+        mNativeExpressAdView.setAdSize(new AdSize((int) adWidth, MIN_HEIGHT));
         mNativeLoading = true;
         mNativeExpressAdView.loadAd(new AdRequest.Builder().build());
     }
