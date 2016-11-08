@@ -24,13 +24,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatImageButton;
@@ -48,6 +46,7 @@ import com.grarak.kerneladiutor.fragments.BaseFragment;
 import com.grarak.kerneladiutor.utils.Utils;
 import com.grarak.kerneladiutor.utils.ViewUtils;
 import com.grarak.kerneladiutor.utils.root.Control;
+import com.grarak.kerneladiutor.views.dialog.Dialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -103,7 +102,7 @@ public class ProfileActivity extends BaseActivity {
                 currentSettings();
             }
         } else {
-            new AlertDialog.Builder(this).setItems(getResources().getStringArray(R.array.profile_modes),
+            new Dialog(this).setItems(getResources().getStringArray(R.array.profile_modes),
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -260,7 +259,7 @@ public class ProfileActivity extends BaseActivity {
             super.onCreate(savedInstanceState);
             setRetainInstance(true);
             setCancelable(false);
-            setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+            setStyle(AppCompatDialogFragment.STYLE_NO_TITLE, 0);
         }
 
         @Nullable
